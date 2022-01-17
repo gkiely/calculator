@@ -1,0 +1,11 @@
+TODO:
+App
+- Update routing to terminal app routing approach
+  - Call route get directly from button with button text that was clicked instead of history
+
+Button
+- Add machine logic to route
+  - In route, replace if logic with the machine logic to determine state
+  I think will still need if logic for determining the input/result output
+  But it should still be much cleaner than this current setup
+

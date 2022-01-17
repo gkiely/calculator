@@ -1,0 +1,42 @@
+import { css } from "@emotion/css";
+
+const getStyle = (inputting: boolean) => css`
+  color: #fff;
+  width: 100%;
+  background: #858694;
+  font-size: 6.25rem;
+  text-align: right;
+  height: 100%;
+  flex: 1;
+`;
+
+const resultStyle = css`
+  font-size: 6.25rem;
+`;
+
+const getInputStyle = (inputting: boolean) => css`
+  font-size: 2.5rem;
+  ${inputting &&
+  `
+      font-size: 6.25rem;
+      margin-bottom: -.5rem;
+    `}
+`;
+
+interface ResultType {
+  id: string;
+  input: string;
+  result: string;
+}
+
+const Result = ({ id, input, result }: ResultType) => {
+  const inputting = Boolean(input?.length && !result);
+  return (
+    <div key={id} className={`${getStyle(inputting)}`}>
+      <div className={`${getInputStyle(inputting)}`}>{input}</div>
+      {result && <div className={`${resultStyle}`}>{result}</div>}
+    </div>
+  );
+};
+
+export default Result;

@@ -1,0 +1,10 @@
+Calculator
+  - Setup simple buttons X
+  - Write JSON generator x
+  - Result component x
+  - Render x
+- React-Router X
+- Pass it to get() x
+- Pass result to button x
+- Render result with correct size x
+- Fix styling to be flex
