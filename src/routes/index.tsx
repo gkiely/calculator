@@ -5,6 +5,18 @@ const id = (prefix?: string): string => {
 };
 const numbers = Array.from(Array(10).keys());
 
+export type ComponentData = {
+  id: number | string;
+  component: string;
+  props: any;
+}
+
+export type Route = Array<ComponentData | ComponentData[]>;
+export type Path = keyof typeof routes;
+export type WeakObj = Record<string, any>;
+type RouteFunction = (state: WeakObj) => Route;
+type Routes = Record<string, RouteFunction>;
+
 const ButtonRow = (item: any, props: any) => ({
   id: id("Button"),
   component: "Button",
@@ -16,7 +28,8 @@ const ButtonRow = (item: any, props: any) => ({
   }
 });
 
-const index = (input?: string) => {
+// TODO: Figure out why I have to use input?: string
+const index = ({ input }: { input?: string}): Route => {
   let result = "";
 
   try {
@@ -27,7 +40,7 @@ const index = (input?: string) => {
           .replace(/=/g, "")
           .replace(/x/gi, "*")
           .replace(/÷/g, "/")
-      );
+      ) || "";
   } catch {
     input = "";
   }
@@ -38,7 +51,7 @@ const index = (input?: string) => {
       component: "Result",
       props: {
         input,
-        result
+        result,
       }
     },
     [
@@ -66,9 +79,12 @@ const index = (input?: string) => {
     [4, 5, 6, "÷"].map((o) => ButtonRow(o, { result })),
     [1, 2, 3, "+"].map((o) => ButtonRow(o, { result })),
     [0, "-"].map((o) => ButtonRow(o, { result }))
-  ];
+  ]
 };
 
-export default {
-  "": index
-};
+const routes: Routes = {
+  '/': index,
+}
+
+export default routes;
+

@@ -1,76 +1,75 @@
-import { css } from "@emotion/css";
+import { BrowserRouter as Router, useLocation } from "react-router-dom";
+import { useState } from 'react';
+
 import "./styles.css";
 import "./machines/calculator";
+import * as styles from "./styles";
 
-import { BrowserRouter as Router, useLocation } from "react-router-dom";
+import * as components from "./components";
+import routes, { ComponentData, Route, Path, WeakObj } from "./routes";
 
-import * as components from "./components/index";
-import get from "./routes/index";
-
-export function getKeys<O>(o: O) {
-  return Object.keys(o) as (keyof O)[];
+export type Location = {
+  path: string;
+  to: (path: Path, o: any) => void;
+  update: React.Dispatch<React.SetStateAction<{}>>
 }
 
-interface ComponentType {
-  id: number | string;
-  name: string;
-  props: any;
-}
-
-interface SectionType {
-  [index: number]: ComponentType;
-}
-
-const componentAppClass = css`
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-`;
-
-const componentSectionClass = css`
-  flex: 1;
-`;
-
-
-const renderComponent = (id: string, name: string, props: any = {}) => {
-  const Component = components[name as keyof typeof components];
-  if (Component) {
-    return <Component key={id} {...props} />;
-  } else {
-    console.warn(`Component does not exist:`, { id, name });
+const getRoute = (path: keyof typeof routes, state: WeakObj): Route  => {
+  if(!routes[path]){
+    console.warn(`Route does not exist: ${path}`);
   }
+  const fn = routes[path];
+  
+	return routes[path](state);
+}
+
+const getComponent = (data: ComponentData, location: Location) => {
+  const Component = components[data.component as keyof typeof components];
+  if(!data.id){
+    console.warn(`Missing id for: ${data.component}`);
+  }
+  if(!Component){
+    console.warn(`Component does not exist: ${data.component}`);
+  }
+  return Component ? <Component key={data.id} {...data.props} location={location} /> : null;
 };
 
-// TODO: Doesn't support { section: { items: []}}
-// TODO: Needs correct typing
+/**
+ * Handles grouping UI into sections
+ */
 // TODO: remove sectionCount in favor of setting id on server w/ above syntax
 let sectionCount = 0;
-const renderSection = (a: SectionType | any) => {
-  const result = Array.isArray(a)
-    ? a.map((item) => renderComponent(item.id, item.component, item.props))
-    : null;
-  return result ? (
-    <section className={componentSectionClass} key={++sectionCount}>
-      {result}
+const createRoute = (data: ComponentData | ComponentData[], location: Location) => {
+  if(Array.isArray(data)){
+    return <section className={styles.section} key={++sectionCount}>
+      {data.map((item: any) => getComponent(item, location))}
     </section>
-  ) : null;
-};
+  }
+  return getComponent(data, location);
+}
+
 
 export function App() {
-  const location = useLocation();
-  const page = get(location.pathname.substr(1));
+  const [path, to] = useState<keyof typeof routes>('/');
+	const [state, update] = useState({});
+	const route = getRoute(path, state);
 
-  return (
-    <div className={componentAppClass}>
-      {page.map((item) => {
-        if (Array.isArray(item)) {
-          return renderSection(item);
-        } else {
-          return renderComponent(item.id, item.component, item.props);
+  if(!route) return null;
+  return <div className={styles.app}>
+    {
+      route.map(data => createRoute(
+        data,
+        {
+          path,
+          to: (path: Path, o: any) => {
+            to(path);
+            update(typeof o === "undefined" ? (prev => prev) : o);
+          },
+          update
         }
-      })}
-    </div>
-  );
+      ))
+    }
+  </div>
 }
 
 export default function AppContainer() {

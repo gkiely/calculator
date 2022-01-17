@@ -2,6 +2,7 @@ import React from "react";
 import { css } from "@emotion/css";
 import { useHistory, useLocation } from "react-router-dom";
 import { calculator, states } from "../machines/calculator";
+import { Location } from '../App';
 
 const buttonClass = css`
   border: 0;
@@ -29,10 +30,10 @@ const containerClass = css`
 interface ButtonContainerType {
   id: string;
   text: string;
-  onClick?: Function;
   operation?: boolean;
   wide?: boolean;
   result: number;
+  location: Location;
 }
 
 interface ButtonType {
@@ -70,10 +71,10 @@ const handleTransition = (text = "") => {
 const ButtonContainer = ({
   id,
   text,
-  onClick = () => {},
   operation = false,
   wide = false,
-  result
+  result,
+  location,
 }: ButtonContainerType) => {
   let history = useHistory();
   let { pathname } = useLocation();
@@ -111,6 +112,7 @@ const ButtonContainer = ({
           history.push(result + text);
         } else if (lastEntry === "=") {
           calculator.transition(states.calculated);
+          // update(text);
           history.push("/" + text);
         }
         // Prevent operators incorrectly being calculated
@@ -121,6 +123,8 @@ const ButtonContainer = ({
         ) {
           return;
         } else {
+          console.log(location);
+          console.log('>>>>>>', text);
           if (text === "=") {
             calculator.transition(states.calculated);
           } else {
