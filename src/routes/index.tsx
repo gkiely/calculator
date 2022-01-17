@@ -5,7 +5,7 @@ const id = (prefix?: string): string => {
 };
 const numbers = Array.from(Array(10).keys());
 
-const Row = (item: any, props: any) => ({
+const ButtonRow = (item: any, props: any) => ({
   id: id("Button"),
   component: "Button",
   props: {
@@ -16,15 +16,7 @@ const Row = (item: any, props: any) => ({
   }
 });
 
-// Child in section
-// {
-//   component: "Section",
-//   items: []
-// }
-
-// .get('/')
-// .get('/:calculation')
-const get = (input?: string) => {
+const index = (input?: string) => {
   let result = "";
 
   try {
@@ -70,11 +62,13 @@ const get = (input?: string) => {
         }
       }
     ],
-    [7, 8, 9, "x"].map((o) => Row(o, { result })),
-    [4, 5, 6, "÷"].map((o) => Row(o, { result })),
-    [1, 2, 3, "+"].map((o) => Row(o, { result })),
-    [0, "-"].map((o) => Row(o, { result }))
+    [7, 8, 9, "x"].map((o) => ButtonRow(o, { result })),
+    [4, 5, 6, "÷"].map((o) => ButtonRow(o, { result })),
+    [1, 2, 3, "+"].map((o) => ButtonRow(o, { result })),
+    [0, "-"].map((o) => ButtonRow(o, { result }))
   ];
 };
 
-export default get;
+export default {
+  "": index
+};
