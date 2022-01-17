@@ -1,20 +1,13 @@
-import { BrowserRouter as Router, useHistory, useLocation } from "react-router-dom";
+import { BrowserRouter as Router } from "react-router-dom";
 import { useState } from 'react';
 import isEqual from 'lodash.isequal';
 
 import "./styles.css";
-import "./machines/calculator";
 import * as styles from "./styles";
 
 import * as components from "./components";
 import routes, { ComponentData, Route, Path } from "./routes";
-import { WeakObj } from './utils/types';
-
-export type Location = {
-  path: string;
-  to: (path: Path, o: any) => void;
-  update: React.Dispatch<React.SetStateAction<WeakObj>>;
-}
+import { Location, WeakObj } from './utils/types';
 
 const getRoute = (path: keyof typeof routes, routeState: WeakObj): Route  => {
   if(!routes[path]){

@@ -1,3 +1,6 @@
 TODO:
-- Replace string math with doMath
+- Replace string math with your own math function
 - Fix input styling
+- Fix createRoute using an increment id
+- Automate component/index.tsx creation
+

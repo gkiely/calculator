@@ -97,7 +97,7 @@ const index: Index = ({ input = "" }): Route => {
   /**
    * State updates
    */
-  console.log({input, result});
+  // console.log({input, result});
 
   // Clear
   const slice = input.slice(-2) ?? "";
