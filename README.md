@@ -1,2 +1,2 @@
-# Calculator machine
-Testing out a new approach using finite state machines and SDUI.
+# Calculator
+Testing out a new approach using SDUI.
