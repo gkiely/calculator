@@ -3,6 +3,7 @@ import { css } from "@emotion/css";
 import { useHistory, useLocation } from "react-router-dom";
 import { calculator, states } from "../machines/calculator";
 import { Location } from '../App';
+import { WeakObj } from '../routes';
 
 const buttonClass = css`
   border: 0;
@@ -99,6 +100,7 @@ const ButtonContainer = ({
 
         // TODO: can this be refactored now we have states?
         if (text === "AC") {
+          location.update({ input: '' });
           calculator.transition(states.cleared);
           history.push("");
         }
@@ -123,8 +125,11 @@ const ButtonContainer = ({
         ) {
           return;
         } else {
-          console.log(location);
-          console.log('>>>>>>', text);
+          location.update((prev: WeakObj) => ({
+            ...prev,
+            input: prev.input ? prev.input + text : text,
+          }));
+
           if (text === "=") {
             calculator.transition(states.calculated);
           } else {

@@ -41,9 +41,7 @@ const index = ({ input }: { input?: string}): Route => {
           .replace(/x/gi, "*")
           .replace(/÷/g, "/")
       ) || "";
-  } catch {
-    input = "";
-  }
+  } catch {}
 
   return [
     {

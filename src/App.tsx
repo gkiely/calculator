@@ -11,7 +11,7 @@ import routes, { ComponentData, Route, Path, WeakObj } from "./routes";
 export type Location = {
   path: string;
   to: (path: Path, o: any) => void;
-  update: React.Dispatch<React.SetStateAction<{}>>
+  update: React.Dispatch<React.SetStateAction<{}>>;
 }
 
 const getRoute = (path: keyof typeof routes, state: WeakObj): Route  => {
@@ -51,8 +51,8 @@ const createRoute = (data: ComponentData | ComponentData[], location: Location) 
 
 export function App() {
   const [path, to] = useState<keyof typeof routes>('/');
-	const [state, update] = useState({});
-	const route = getRoute(path, state);
+	const [routeState, update] = useState<WeakObj>({});
+	const route = getRoute(path, routeState);
 
   if(!route) return null;
   return <div className={styles.app}>
@@ -65,7 +65,7 @@ export function App() {
             to(path);
             update(typeof o === "undefined" ? (prev => prev) : o);
           },
-          update
+          update,
         }
       ))
     }
