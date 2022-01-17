@@ -1,4 +1,4 @@
-import { WeakObj } from '../routes';
+import { WeakObj } from './types';
 
 type Machine<State extends string> = {
   initialState: State;

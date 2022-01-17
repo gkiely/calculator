@@ -1,12 +1,14 @@
 import { BrowserRouter as Router, useHistory, useLocation } from "react-router-dom";
 import { useState } from 'react';
+import isEqual from 'lodash.isequal';
 
 import "./styles.css";
 import "./machines/calculator";
 import * as styles from "./styles";
 
 import * as components from "./components";
-import routes, { ComponentData, Route, Path, WeakObj } from "./routes";
+import routes, { ComponentData, Route, Path } from "./routes";
+import { WeakObj } from './utils/types';
 
 export type Location = {
   path: string;
@@ -14,13 +16,11 @@ export type Location = {
   update: React.Dispatch<React.SetStateAction<WeakObj>>;
 }
 
-const getRoute = (path: keyof typeof routes, state: WeakObj): Route  => {
+const getRoute = (path: keyof typeof routes, routeState: WeakObj): Route  => {
   if(!routes[path]){
     console.warn(`Route does not exist: ${path}`);
   }
-  const fn = routes[path];
-  
-	return routes[path](state);
+	return routes[path](routeState);
 }
 
 const getComponent = (data: ComponentData, location: Location) => {
@@ -53,12 +53,16 @@ export function App() {
   const [path, to] = useState<keyof typeof routes>('/');
 	const [routeState, update] = useState<WeakObj>({});
 	const route = getRoute(path, routeState);
-  const history = useHistory();
+
+  // Allows updating state from route
+  if(route.state && !isEqual(route.state, routeState)){
+    update(route.state);
+  }
 
   if(!route) return null;
   return <div className={styles.app}>
     {
-      route.map(data => createRoute(
+      route.components.map(data => createRoute(
         data,
         {
           path,

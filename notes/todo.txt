@@ -1,7 +1,9 @@
 TODO:
 App
 
-Button
+- Move the if conditions to the route, why do we even need a machine?
+
+
 - Add machine logic to route
   - In route, replace if logic with the machine logic to determine state
   I think will still need if logic for determining the input/result output

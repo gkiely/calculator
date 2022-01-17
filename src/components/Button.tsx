@@ -1,10 +1,7 @@
 import React from "react";
 import { css } from "@emotion/css";
-import { useHistory, useLocation } from "react-router-dom";
 
-import { calculator, states } from "../machines/calculator";
 import { Location } from '../App';
-import { WeakObj } from '../routes';
 
 const buttonClass = css`
   border: 0;
@@ -62,105 +59,18 @@ export const Button = ({
   </div>
 );
 
-const handleTransition = (text: string) => {
-  if (text === "=") {
-    return calculator.transition(states.calculated);
-  }
-  if (text === "AC") {
-    return calculator.transition(states.cleared);
-  }
-  return calculator.transition(states.inputting);
-};
-
-const getInput = (
-  text: string,
-  lastState: typeof calculator.state,
-  state: ReturnType<typeof handleTransition>,
-  input: string,
-  result: number,
-  operator: boolean,
-) => {
-  const lastChar = input.slice(-1);
-  if(state === "cleared"){
-    return '';
-  }
-
-  // Prevent double =
-  if(state === "calculated" && lastState === "calculated") {
-    return;
-  }
-  
-  // Prevent double operators
-  if((state === "inputting" || state === "calculated") && lastState !== "calculated" && Number.isNaN(+lastChar) && operator){
-    return;
-  }
-
-  // Allow calculating from a previous result
-  if(lastState === "calculated" && state === "inputting"){
-    return result + text;
-  }
-  return input ? input + text : text;
-
-}
-
 const ButtonContainer = ({
   id,
   text,
   operation = false,
-  operator = false,
   wide = false,
-  result,
-  input,
   location,
 }: ButtonContainerType) => {
-  // let history = useHistory();
-  // let { pathname } = useLocation();
-  // const lastEntry = pathname.substr(-1);
-  // const entry = Number(text);
-
-  calculator.enableLogging(true);
-
   return (
     <Button
       key={id}
-      // onClick={() => transition(transitions[key])}
-      // }}
       onClick={() => {
-
-        // Next
-        // We should just be sending events/transitions to the machine
-        // Context should be stored updated, not in our own app state, and then passed to the route
-
-        const lastState = calculator.state;
-        const state = handleTransition(text);
-        const lastChar = input?.slice(-1);
-        
-        // This is what I want
-        // Calculate calls a lot of the same things that route does
-        // Returns the input and, we call location.update
-        // const nextInput = calculator.send({text, routeState});
-        // if(nextInput){
-        //   location.update({input: nextInput});
-        // }
-
-        
-
-        // Prevent double =
-        if(state === "calculated" && lastState === "calculated") {
-          return;
-        }
-        
-        // Prevent double operators
-        if((state === "inputting" || state === "calculated") && lastState !== "calculated" && Number.isNaN(+lastChar) && operator){
-          return;
-        }
-
-        // Allow calculating from a previous result
-        if(lastState === "calculated" && state === "inputting"){
-          return location.update({input: result + text});
-        }
-
-        return location.update({input: input ? input + text : text});
+        location.update(prev => ({input: prev.input ? prev.input + text : text }));
       }}
       containerClassName={`${containerClass} ${getContainerWidthClass(wide)}`}
       className={`${buttonClass} ${getButtonColorClass(operation)}`}
