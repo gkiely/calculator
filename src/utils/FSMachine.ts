@@ -1,14 +1,18 @@
-type Machine = {
-  initialState: string;
+import { WeakObj } from '../routes';
+
+type Machine<State extends string> = {
+  initialState: State;
+  context: WeakObj;
+  update?: (context: WeakObj) => WeakObj;
   transitions: {
-    [key: string]: string[];
+    [key: string]: State[];
   };
 };
 
-const performTransition = (
-  state: string,
-  transition: string | undefined,
-  transitions: Machine["transitions"]
+const performTransition = <State extends string>(
+  state: State,
+  transition: State | undefined,
+  transitions: Machine<State>["transitions"]
 ) => {
   // If no transition found, move to first entry
   if (typeof transition === "undefined") {
@@ -29,15 +33,15 @@ const performTransition = (
   return state;
 };
 
-export const FSMachine = (machine: Machine) => {
-  const { transitions, initialState } = machine;
+export const FSMachine = <State extends string>(machine: Machine<State>) => {
+  const { transitions, initialState, update } = machine;
   let state = initialState;
   let logging = false;
   let verboseLogging = false;
 
   return {
-    transition: (transition?: string, msg = "") => {
-      const nextState = performTransition(state, transition, transitions);
+    transition: (transition?: State, msg = "") => {
+      const nextState = performTransition<State>(state, transition, transitions);
       if (logging && nextState !== state) {
         console.log("transitioned to:", nextState + msg);
       }
@@ -50,6 +54,7 @@ export const FSMachine = (machine: Machine) => {
       state = nextState;
       return state;
     },
+    update,
     enableLogging(verbose?: boolean) {
       if (!logging) {
         console.log("initial state:", state);
@@ -78,11 +83,12 @@ export const FSMachine = (machine: Machine) => {
 };
 
 export const mappedKeys = <T extends string>(arr: readonly T[]) => {
-  return arr.reduce(
+  const result = arr.reduce(
     (o, s, i) => ({
       ...o,
       [s]: s
     }),
     {} as Record<T, T[number]>
   );
+  return result as Record<T, T>;
 };

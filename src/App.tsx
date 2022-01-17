@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, useHistory, useLocation } from "react-router-dom";
 import { useState } from 'react';
 
 import "./styles.css";
@@ -11,7 +11,7 @@ import routes, { ComponentData, Route, Path, WeakObj } from "./routes";
 export type Location = {
   path: string;
   to: (path: Path, o: any) => void;
-  update: React.Dispatch<React.SetStateAction<{}>>;
+  update: React.Dispatch<React.SetStateAction<WeakObj>>;
 }
 
 const getRoute = (path: keyof typeof routes, state: WeakObj): Route  => {
@@ -53,6 +53,7 @@ export function App() {
   const [path, to] = useState<keyof typeof routes>('/');
 	const [routeState, update] = useState<WeakObj>({});
 	const route = getRoute(path, routeState);
+  const history = useHistory();
 
   if(!route) return null;
   return <div className={styles.app}>

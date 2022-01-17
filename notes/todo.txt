@@ -1,7 +1,5 @@
 TODO:
 App
-- Update routing to terminal app routing approach x
-  - Call route get directly from button with button text that was clicked instead of history
 
 Button
 - Add machine logic to route
@@ -9,3 +7,10 @@ Button
   I think will still need if logic for determining the input/result output
   But it should still be much cleaner than this current setup
 
+
+- Replace string math with doMath
+
+
+Done
+- Update routing to terminal app routing approach x
+  - Call route get directly from button with button text that was clicked instead of history

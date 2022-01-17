@@ -1,4 +1,6 @@
 import stringMath from "string-math";
+import { calculator, states } from "../machines/calculator";
+
 let idCount = 0;
 const id = (prefix?: string): string => {
   return `${prefix ? prefix + "-" : ""}${++idCount}`;
@@ -21,17 +23,20 @@ const ButtonRow = (item: any, props: any) => ({
   id: id("Button"),
   component: "Button",
   props: {
-    text: item,
-    ...(!numbers.includes(item) && { operation: true }),
+    text: `${item}`,
+    ...(!numbers.includes(item) && { operation: true, operator: true }),
     ...(item === 0 && { wide: true }),
     ...props
   }
 });
 
-// TODO: Figure out why I have to use input?: string
-const index = ({ input }: { input?: string}): Route => {
-  let result = "";
+type Index = {
+  input?: string;
+}
 
+// TODO: Figure out why I have to use input?: string
+const index = ({ input }: Index): Route => {
+  let result = "";
   try {
     result =
       input?.endsWith("=") &&
@@ -58,7 +63,7 @@ const index = ({ input }: { input?: string}): Route => {
         component: "Button",
         props: {
           text: "AC",
-          operation: true,
+          input,
           result
         }
       },
@@ -68,15 +73,15 @@ const index = ({ input }: { input?: string}): Route => {
         props: {
           wide: true,
           text: "=",
-          operation: true,
+          input,
           result
         }
       }
     ],
-    [7, 8, 9, "x"].map((o) => ButtonRow(o, { result })),
-    [4, 5, 6, "÷"].map((o) => ButtonRow(o, { result })),
-    [1, 2, 3, "+"].map((o) => ButtonRow(o, { result })),
-    [0, "-"].map((o) => ButtonRow(o, { result }))
+    [7, 8, 9, "x"].map((o) => ButtonRow(o, { input, result })),
+    [4, 5, 6, "÷"].map((o) => ButtonRow(o, { input, result })),
+    [1, 2, 3, "+"].map((o) => ButtonRow(o, { input, result })),
+    [0, "-"].map((o) => ButtonRow(o, { input, result }))
   ]
 };
 
