@@ -8,3 +8,12 @@ Calculator
 - Pass result to button x
 - Render result with correct size x
 - Fix styling to be flex
+- Update routing to terminal app routing approach x
+  - Call route get directly from button with button text that was clicked instead of history
+- Move the if conditions to the route, why do we even need a machine? x
+
+SDUI - Amazing how it works
+- Immediate mode, encourages writing it in a clean, functional way
+- Focuses on the input/output
+- Worrying about state and machines not needed
+- Cross platform

@@ -1,18 +1,3 @@
 TODO:
-App
-
-- Move the if conditions to the route, why do we even need a machine?
-
-
-- Add machine logic to route
-  - In route, replace if logic with the machine logic to determine state
-  I think will still need if logic for determining the input/result output
-  But it should still be much cleaner than this current setup
-
-
 - Replace string math with doMath
-
-
-Done
-- Update routing to terminal app routing approach x
-  - Call route get directly from button with button text that was clicked instead of history
+- Fix input styling

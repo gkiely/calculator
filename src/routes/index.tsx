@@ -14,7 +14,6 @@ export type ComponentData = {
   props: any;
 }
 
-// export type Route = Array<ComponentData | ComponentData[]>;
 export type Route = {
   state?: WeakObj;
   components: Array<ComponentData | ComponentData[]>;
@@ -28,36 +27,36 @@ const ButtonRow = (item: any, props: any) => ({
   component: "Button",
   props: {
     text: `${item}`,
-    ...(!numbers.includes(item) && { operation: true, operator: true }),
+    ...(!numbers.includes(item) && { operation: true }),
     ...(item === 0 && { wide: true }),
     ...props
   }
 });
 
-
-
-const doMath = (input: string) => {
-  let result = "";
+const doMath = (input: string): string => {
   try {
-    result =
-      input?.endsWith("=") &&
+    return input.endsWith("=") &&
       stringMath(
         decodeURIComponent(input)
           .replace(/=/g, "")
           .replace(/x/gi, "*")
           .replace(/÷/g, "/")
       ) || "";
-  } catch {}
-  return result;
+  } catch {
+    return "";
+  }
 }
 
+const isOperator = (char: string) => {
+  return ["+", "-", "x", "÷"].includes(char);
+};
 
 type Index = (
   {input}: {input?: string},
 ) => Route;
 
-const index: Index = ({ input }): Route => {
-  const result = input ? doMath(input) : "";
+const index: Index = ({ input = "" }): Route => {
+  const result = doMath(input);
   
   const components = [
     {
@@ -101,7 +100,7 @@ const index: Index = ({ input }): Route => {
   console.log({input, result});
 
   // Clear
-  const slice = input?.slice(-2) ?? "";
+  const slice = input.slice(-2) ?? "";
   if(slice === "AC"){
     return {
       state: {
@@ -114,7 +113,7 @@ const index: Index = ({ input }): Route => {
   // Allow calculating from a previous result
   const lastEntry = slice.charAt(0);
   const currentEntry = slice.charAt(1);
-  if(input && lastEntry === '='){
+  if(lastEntry === '='){
     const r = doMath(input.substring(0, input.length - 1));
     return {
       state: {
@@ -123,6 +122,17 @@ const index: Index = ({ input }): Route => {
       components,
     }
   }
+
+  // Prevent double operators
+  if(isOperator(currentEntry) && isOperator(lastEntry)){
+    return {
+      state: {
+        input: input.substring(0, input.length - 1),
+      },
+      components,
+    }
+  }
+
   return {
     components,
   }
