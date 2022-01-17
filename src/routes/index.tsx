@@ -124,7 +124,7 @@ const index: Index = ({ input = "" }): Route => {
   }
 
   // Prevent double operators
-  if(isOperator(currentEntry) && isOperator(lastEntry)){
+  if((isOperator(currentEntry) || currentEntry === "=") && isOperator(lastEntry)){
     return {
       state: {
         input: input.substring(0, input.length - 1),
