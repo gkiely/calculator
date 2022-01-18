@@ -59,7 +59,7 @@ export function App() {
         data,
         {
           path,
-          to: (path: Path, o: any) => {
+          to: (path: Path, o: WeakObj) => {
             to(path);
             update(typeof o === "undefined" ? (prev => prev) : o);
           },
