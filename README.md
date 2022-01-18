@@ -1,5 +1,5 @@
 # Calculator
-Testing out a new approach to building an application using SDUI.
+Testing out a new approach to building applications using SDUI.
 
 [Demo](https://codesandbox.io/s/flamboyant-haze-5fjpn)
 
