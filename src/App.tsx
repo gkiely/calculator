@@ -2,45 +2,11 @@ import { BrowserRouter as Router } from "react-router-dom";
 import { useState } from 'react';
 import isEqual from 'lodash.isequal';
 
+import routes, { Path } from "./routes";
+import { createRoute, getRoute } from "./utils";
+import { WeakObj } from './utils/types';
 import "./styles.css";
 import * as styles from "./styles";
-
-import * as components from "./components";
-import routes, { ComponentData, Route, Path } from "./routes";
-import { Location, WeakObj } from './utils/types';
-
-const getRoute = (path: keyof typeof routes, routeState: WeakObj): Route  => {
-  if(!routes[path]){
-    console.warn(`Route does not exist: ${path}`);
-  }
-	return routes[path](routeState);
-}
-
-const getComponent = (data: ComponentData, location: Location) => {
-  const Component = components[data.component as keyof typeof components];
-  if(!data.id){
-    console.warn(`Missing id for: ${data.component}`);
-  }
-  if(!Component){
-    console.warn(`Component does not exist: ${data.component}`);
-  }
-  return Component ? <Component key={data.id} {...data.props} location={location} /> : null;
-};
-
-/**
- * Handles grouping UI into sections
- */
-// TODO: remove sectionCount in favor of setting id on server w/ above syntax
-let sectionCount = 0;
-const createRoute = (data: ComponentData | ComponentData[], location: Location) => {
-  if(Array.isArray(data)){
-    return <section className={styles.section} key={++sectionCount}>
-      {data.map((item: any) => getComponent(item, location))}
-    </section>
-  }
-  return getComponent(data, location);
-}
-
 
 export function App() {
   const [path, to] = useState<keyof typeof routes>('/');

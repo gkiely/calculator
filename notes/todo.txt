@@ -1,4 +1,6 @@
 TODO:
+- Add history
+  - Either using to, or an event listener
 - Replace string math with your own math function
 - Fix input styling
 - Fix createRoute using an increment id
