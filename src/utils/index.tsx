@@ -1,5 +1,5 @@
 import { Location, WeakObj } from './types';
-import routes, { ComponentData, Route, Path } from "../routes";
+import routes, { ComponentData, Route } from "../routes";
 import * as components from "../components";
 import * as styles from "../styles";
 
