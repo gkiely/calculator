@@ -1,3 +1,3 @@
 declare module 'string-math' {
-  export default function (a: string): string;
+  export default function (a: string): number;
 }

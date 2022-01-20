@@ -34,14 +34,13 @@ const ButtonRow = (item: any, props: any) => ({
 });
 
 const doMath = (input: string): string => {
+  if(!input.endsWith("=")) return "";
   try {
-    return input.endsWith("=") &&
-      stringMath(
-        decodeURIComponent(input)
-          .replace(/=/g, "")
-          .replace(/x/gi, "*")
-          .replace(/÷/g, "/")
-      ) || "";
+    const parsedInput = input
+    .replace(/=/g, "")
+    .replace(/x/gi, "*")
+    .replace(/÷/g, "/");
+    return `${stringMath(parsedInput)}`;
   } catch {
     return "";
   }
