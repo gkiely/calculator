@@ -23,7 +23,6 @@ module.exports = {
   },
   rules: {
     'no-shadow': 'off',
-    '@typescript-eslint/no-shadow': [0, { ignoreTypeValueShadow: true }],
     'linebreak-style': 'off',
     'prettier/prettier': [
       'warn',

@@ -3,7 +3,7 @@ import React from 'react';
 import { Location } from '../utils/types';
 import { buttonClass, getButtonColorClass, getContainerWidthClass, containerClass } from '../styles';
 
-interface ButtonType {
+interface Props {
   containerClassName?: string;
   className?: string;
   key: string;
@@ -11,7 +11,7 @@ interface ButtonType {
   children?: React.ReactChild;
 }
 
-export const Button = ({ containerClassName, className, key, onClick, children }: ButtonType) => {
+export const Button = ({ containerClassName, className, key, onClick, children }: Props) => {
   return (
     <div className={containerClassName}>
       <button key={key} onClick={(e) => onClick(e)} className={className}>
@@ -21,18 +21,15 @@ export const Button = ({ containerClassName, className, key, onClick, children }
   );
 };
 
-interface ButtonContainerType {
+interface ContainerProps {
   id: string;
   text: string;
   operation?: boolean;
-  operator?: boolean;
   wide?: boolean;
-  result: number;
-  input: string;
   location: Location;
 }
 
-const ButtonContainer = ({ id, text, operation = false, wide = false, location }: ButtonContainerType) => {
+const ButtonContainer = ({ id, text, operation = false, wide = false, location }: ContainerProps) => {
   return (
     <Button
       key={id}

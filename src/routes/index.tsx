@@ -6,7 +6,6 @@ import { componentNames } from '../utils';
 
 let idCount = 0;
 const id = (prefix?: string): string => `${prefix ? `${prefix}-` : ''}${++idCount}`;
-const numbers = Array.from(Array(10).keys());
 
 export type Route = {
   state?: WeakObj;
@@ -15,14 +14,13 @@ export type Route = {
 type RouteFunction = (routeState: WeakObj) => Route;
 type Routes = Record<string, RouteFunction>;
 
-const ButtonRow = (item: number | string, props: { [key: string]: string }): ComponentData => ({
+const Button = (label: number | string): ComponentData => ({
   id: id(componentNames.Button),
   component: componentNames.Button,
   props: {
-    text: `${item}`,
-    ...(typeof item !== 'string' && !numbers.includes(item) && { operation: true }),
-    ...(item === 0 && { wide: true }),
-    ...props,
+    text: `${label}`,
+    ...(typeof label === 'string' && { operation: true }),
+    ...(label === 0 && { wide: true }),
   },
 });
 
@@ -55,25 +53,21 @@ const index = ({ input = '' }: { input?: string }): Route => {
         component: componentNames.Button,
         props: {
           text: 'AC',
-          input,
-          result,
         },
       },
       {
         id: id('Button'),
         component: componentNames.Button,
         props: {
-          wide: true,
           text: '=',
-          input,
-          result,
+          wide: true,
         },
       },
     ],
-    [7, 8, 9, 'x'].map((o) => ButtonRow(o, { input, result })),
-    [4, 5, 6, '÷'].map((o) => ButtonRow(o, { input, result })),
-    [1, 2, 3, '+'].map((o) => ButtonRow(o, { input, result })),
-    [0, '-'].map((o) => ButtonRow(o, { input, result })),
+    [7, 8, 9, 'x'].map((o) => Button(o)),
+    [4, 5, 6, '÷'].map((o) => Button(o)),
+    [1, 2, 3, '+'].map((o) => Button(o)),
+    [0, '-'].map((o) => Button(o)),
   ];
 
   /**

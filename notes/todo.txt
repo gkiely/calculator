@@ -1,5 +1,6 @@
 TODO:
-
+- Right now you can remove the `text` prop from the Button component in the route even though the component requires it
+  - See if you can replace the WeakObj that is being used for props
 - Update to newest CRA
 - Add history
   - Either using to, or an event listener

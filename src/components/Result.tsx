@@ -23,13 +23,13 @@ const getInputStyle = (inputting: boolean) => css`
     `}
 `;
 
-interface ResultType {
+interface Props {
   id: string;
   input: string;
   result: string;
 }
 
-const Result = ({ id, input, result }: ResultType) => {
+const Result = ({ id, input, result }: Props) => {
   const inputting = Boolean(input?.length && !result);
   return (
     <div key={id} className={`${getStyle()}`}>
