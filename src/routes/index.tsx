@@ -1,7 +1,7 @@
 import stringMath from 'string-math';
+
 import { ComponentData } from '../components/types';
 import { WeakObj } from '../utils/types';
-
 import { componentNames } from '../utils';
 
 let idCount = 0;
@@ -12,7 +12,6 @@ export type Route = {
   state?: WeakObj;
   components: Array<ComponentData | ComponentData[]>;
 };
-export type Path = keyof typeof routes;
 type RouteFunction = (routeState: WeakObj) => Route;
 type Routes = Record<string, RouteFunction>;
 
@@ -123,5 +122,7 @@ const index = ({ input = '' }: { input?: string }): Route => {
 const routes: Routes = {
   '/': index,
 };
+
+export type Path = keyof typeof routes;
 
 export default routes;
