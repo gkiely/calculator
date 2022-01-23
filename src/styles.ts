@@ -1,4 +1,4 @@
-import { css } from "@emotion/css";
+import { css } from '@emotion/css';
 
 export const app = css`
   height: 100%;
@@ -19,13 +19,11 @@ export const buttonClass = css`
 `;
 
 export const getButtonColorClass = (operation: boolean) => css`
-  ${operation
-    ? `background-color: #f5923e; color: white;`
-    : `background-color: #e0e0e0; color: black;`}
+  ${operation ? 'background-color: #f5923e; color: white;' : 'background-color: #e0e0e0; color: black;'}
 `;
 
 export const getContainerWidthClass = (wide: boolean) => css`
-  ${wide ? `width: 75%;` : `width: 25%;`}
+  ${wide ? 'width: 75%;' : 'width: 25%;'}
 `;
 
 export const containerClass = css`

@@ -1,4 +1,6 @@
 TODO:
+
+- Update to newest CRA
 - Add history
   - Either using to, or an event listener
 - Replace string math with your own math function

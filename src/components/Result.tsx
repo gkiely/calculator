@@ -1,6 +1,6 @@
-import { css } from "@emotion/css";
+import { css } from '@emotion/css';
 
-const getStyle = (inputting: boolean) => css`
+const getStyle = () => css`
   color: #fff;
   width: 100%;
   background: #858694;
@@ -32,7 +32,7 @@ interface ResultType {
 const Result = ({ id, input, result }: ResultType) => {
   const inputting = Boolean(input?.length && !result);
   return (
-    <div key={id} className={`${getStyle(inputting)}`}>
+    <div key={id} className={`${getStyle()}`}>
       <div className={`${getInputStyle(inputting)}`}>{input}</div>
       {result && <div className={`${resultStyle}`}>{result}</div>}
     </div>

@@ -1,145 +1,127 @@
-import stringMath from "string-math";
-
+import stringMath from 'string-math';
+import { ComponentData } from '../components/types';
 import { WeakObj } from '../utils/types';
 
-let idCount = 0;
-const id = (prefix?: string): string => {
-  return `${prefix ? prefix + "-" : ""}${++idCount}`;
-};
-const numbers = Array.from(Array(10).keys());
+import { componentNames } from '../utils';
 
-export type ComponentData = {
-  id: number | string;
-  component: string;
-  props: any;
-}
+let idCount = 0;
+const id = (prefix?: string): string => `${prefix ? `${prefix}-` : ''}${++idCount}`;
+const numbers = Array.from(Array(10).keys());
 
 export type Route = {
   state?: WeakObj;
   components: Array<ComponentData | ComponentData[]>;
-}
+};
 export type Path = keyof typeof routes;
 type RouteFunction = (routeState: WeakObj) => Route;
 type Routes = Record<string, RouteFunction>;
 
-const ButtonRow = (item: any, props: any) => ({
-  id: id("Button"),
-  component: "Button",
+const ButtonRow = (item: number | string, props: { [key: string]: string }): ComponentData => ({
+  id: id(componentNames.Button),
+  component: componentNames.Button,
   props: {
     text: `${item}`,
-    ...(!numbers.includes(item) && { operation: true }),
+    ...(typeof item !== 'string' && !numbers.includes(item) && { operation: true }),
     ...(item === 0 && { wide: true }),
-    ...props
-  }
+    ...props,
+  },
 });
 
 const doMath = (input: string): string => {
-  if(!input.endsWith("=")) return "";
+  if (!input.endsWith('=')) return '';
   try {
-    const parsedInput = input
-    .replace(/=/g, "")
-    .replace(/x/gi, "*")
-    .replace(/÷/g, "/");
+    const parsedInput = input.replace(/=/g, '').replace(/x/gi, '*').replace(/÷/g, '/');
     return `${stringMath(parsedInput)}`;
   } catch {
-    return "";
+    return '';
   }
-}
-
-const isOperator = (char: string) => {
-  return ["+", "-", "x", "÷"].includes(char);
 };
 
-type Index = (
-  {input}: {input?: string},
-) => Route;
+const isOperator = (char: string) => ['+', '-', 'x', '÷'].includes(char);
 
-const index: Index = ({ input = "" }): Route => {
+const index = ({ input = '' }: { input?: string }): Route => {
   const result = doMath(input);
-  
-  const components = [
+  const components: Route['components'] = [
     {
-      id: id("Result"),
-      component: "Result",
+      id: id(componentNames.Result),
+      component: componentNames.Result,
       props: {
         input,
         result,
-      }
+      },
     },
     [
       {
-        id: id("Button"),
-        component: "Button",
+        id: id(componentNames.Button),
+        component: componentNames.Button,
         props: {
-          text: "AC",
+          text: 'AC',
           input,
-          result
-        }
+          result,
+        },
       },
       {
-        id: id("Button"),
-        component: "Button",
+        id: id('Button'),
+        component: componentNames.Button,
         props: {
           wide: true,
-          text: "=",
+          text: '=',
           input,
-          result
-        }
-      }
+          result,
+        },
+      },
     ],
-    [7, 8, 9, "x"].map((o) => ButtonRow(o, { input, result })),
-    [4, 5, 6, "÷"].map((o) => ButtonRow(o, { input, result })),
-    [1, 2, 3, "+"].map((o) => ButtonRow(o, { input, result })),
-    [0, "-"].map((o) => ButtonRow(o, { input, result }))
+    [7, 8, 9, 'x'].map((o) => ButtonRow(o, { input, result })),
+    [4, 5, 6, '÷'].map((o) => ButtonRow(o, { input, result })),
+    [1, 2, 3, '+'].map((o) => ButtonRow(o, { input, result })),
+    [0, '-'].map((o) => ButtonRow(o, { input, result })),
   ];
 
   /**
    * State updates
    */
-  // console.log({input, result});
 
   // Clear
-  const slice = input.slice(-2) ?? "";
-  if(slice === "AC"){
+  const slice = input.slice(-2) ?? '';
+  if (slice === 'AC') {
     return {
       state: {
         input: '',
       },
       components,
-    }
+    };
   }
-  
+
   // Allow calculating from a previous result
   const lastEntry = slice.charAt(0);
   const currentEntry = slice.charAt(1);
-  if(lastEntry === '='){
+  if (lastEntry === '=') {
     const r = doMath(input.substring(0, input.length - 1));
     return {
       state: {
         input: r + currentEntry,
       },
       components,
-    }
+    };
   }
 
   // Prevent double operators
-  if((isOperator(currentEntry) || currentEntry === "=") && isOperator(lastEntry)){
+  if ((isOperator(currentEntry) || currentEntry === '=') && isOperator(lastEntry)) {
     return {
       state: {
         input: input.substring(0, input.length - 1),
       },
       components,
-    }
+    };
   }
 
   return {
     components,
-  }
+  };
 };
 
 const routes: Routes = {
   '/': index,
-}
+};
 
 export default routes;
-
