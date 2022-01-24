@@ -2,16 +2,14 @@ import { Location, WeakObj } from './types';
 import routes, { Route } from '../routes';
 import * as components from '../components';
 import * as styles from '../styles';
-import { ComponentData } from '../components/types';
-
-type ComponentName = ComponentData['component'];
+import { ComponentData, ComponentName, ComponentNames } from '../components/types';
 
 export const componentNames = (Object.keys(components) as Array<ComponentName>).reduce(
   (acc, component) => ({
     ...acc,
     [component]: component,
   }),
-  {} as Record<ComponentName, ComponentName>
+  {} as ComponentNames
 );
 
 export const getRoute = (path: keyof typeof routes, routeState: WeakObj): Route => {

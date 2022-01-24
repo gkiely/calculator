@@ -12,6 +12,9 @@ Calculator
   - Call route get directly from button with button text that was clicked instead of history
 - Move the if conditions to the route, why do we even need a machine? x
 - Add prettier x
+- Right now you can remove the `text` prop from the Button component in the route even though the component requires it
+  - See if you can replace the WeakObj that is being used for props
+
 
 SDUI - Amazing how it works
 - Immediate mode, encourages writing it in a clean, functional way

@@ -7,12 +7,10 @@ import { componentNames } from '../utils';
 let idCount = 0;
 const id = (prefix?: string): string => `${prefix ? `${prefix}-` : ''}${++idCount}`;
 
-export type Route = {
-  state?: WeakObj;
+export type Route<T extends WeakObj = WeakObj> = {
+  state?: T;
   components: Array<ComponentData | ComponentData[]>;
 };
-type RouteFunction = (routeState: WeakObj) => Route;
-type Routes = Record<string, RouteFunction>;
 
 const Button = (label: number | string): ComponentData => ({
   id: id(componentNames.Button),
@@ -36,15 +34,15 @@ const doMath = (input: string): string => {
 
 const isOperator = (char: string) => ['+', '-', 'x', '÷'].includes(char);
 
-const index = ({ input = '' }: { input?: string }): Route => {
+const index = ({ input = '' }: { input?: string }): Route<{ input: string }> => {
   const result = doMath(input);
   const components: Route['components'] = [
     {
       id: id(componentNames.Result),
       component: componentNames.Result,
       props: {
-        input,
         result,
+        input,
       },
     },
     [
@@ -113,10 +111,15 @@ const index = ({ input = '' }: { input?: string }): Route => {
   };
 };
 
-const routes: Routes = {
+const routes = {
   '/': index,
 };
 
 export type Path = keyof typeof routes;
 
-export default routes;
+const as = <T extends Record<string, unknown>>(value: T) => value;
+type Routes = {
+  [k in keyof typeof routes]: (o: Parameters<typeof routes[k]>[number]) => ReturnType<typeof routes[k]>;
+};
+
+export default as<Routes>(routes);
