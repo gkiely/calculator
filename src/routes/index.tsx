@@ -119,7 +119,7 @@ export type Path = keyof typeof routes;
 type Nested<T> = T extends Route<infer A> ? A : never;
 export type RouteState = {
   [k in keyof typeof routes]: Nested<ReturnType<typeof routes[k]>>;
-}
+};
 
 const as = <T extends Record<string, unknown>>(value: T) => value;
 
