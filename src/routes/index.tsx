@@ -54,7 +54,7 @@ const index = ({ input = '' }: { input?: string }): Route<{ input: string }> => 
         },
       },
       {
-        id: id('Button'),
+        id: id(componentNames.Button),
         component: componentNames.Button,
         props: {
           text: '=',
@@ -117,9 +117,11 @@ const routes = {
 
 export type Path = keyof typeof routes;
 
+type AssertRoute<T> = T extends Route<infer A> ? Route<A> : never;
 const as = <T extends Record<string, unknown>>(value: T) => value;
+
 type Routes = {
-  [k in keyof typeof routes]: (o: Parameters<typeof routes[k]>[number]) => ReturnType<typeof routes[k]>;
+  [k in keyof typeof routes]: (o: Parameters<typeof routes[k]>[number]) => AssertRoute<ReturnType<typeof routes[k]>>;
 };
 
 export default as<Routes>(routes);

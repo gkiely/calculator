@@ -8,3 +8,7 @@ export type Location = {
   to: (path: Path, o: WeakObj) => void;
   update: Update;
 };
+
+// Get nested generic
+// https://stackoverflow.com/questions/63631364/infer-nested-generic-types-in-typescript
+// type Nested<T> = T extends Route<infer A> ? A : never;
