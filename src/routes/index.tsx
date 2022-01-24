@@ -111,8 +111,26 @@ const index = ({ input = '' }: { input?: string }): Route<{ input: string }> => 
   };
 };
 
+// const test = ({ so }: { so?: string }): Route<{ sup?: string }> => {
+//   return {
+//     components: [
+//       {
+//         id: '2134',
+//         component: componentNames.Button,
+//         props: {
+//           text: 'hi',
+//         },
+//       },
+//     ],
+//     state: {
+//       sup: 'sup',
+//     },
+//   };
+// };
+
 const routes = {
   '/': index,
+  // test,
 };
 
 export type Path = keyof typeof routes;
@@ -124,7 +142,7 @@ export type RouteState = {
 const as = <T extends Record<string, unknown>>(value: T) => value;
 
 type Routes = {
-  [k in keyof typeof routes]: (o: Parameters<typeof routes[k]>[number]) => Route<RouteState[k]>;
+  [k in keyof typeof routes]: (o: Partial<Parameters<typeof routes[k]>[number]>) => Route<RouteState[k]>;
 };
 
 export default as<Routes>(routes);
