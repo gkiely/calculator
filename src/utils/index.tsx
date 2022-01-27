@@ -12,7 +12,7 @@ export const componentNames = (Object.keys(components) as Array<ComponentName>).
   {} as ComponentNames
 );
 
-export const getRoute = <P extends Path>(path: P, routeState: RouteParams): Route<RouteStates[P]> => {
+export const getRoute = (path: Path, routeState: RouteParams): Route<RouteStates> => {
   if (!routes[path]) {
     console.warn(`Route does not exist: ${path}`);
   }

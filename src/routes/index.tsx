@@ -137,18 +137,20 @@ const routes = {
 export type Path = keyof typeof routes;
 type Nested<T> = T extends Route<infer A> ? A : never;
 
-export type RouteStates = {
-  [k in keyof typeof routes]: Partial<Nested<ReturnType<typeof routes[k]>>>;
+export type RouteStatesObj = {
+  [k in keyof typeof routes]: Nested<ReturnType<typeof routes[k]>>;
 };
 
-type GetRouteParams<P> = P extends Path ? Partial<Parameters<typeof routes[P]>[number]> : never;
+type GetRouteStates<P> = P extends Path ? Nested<ReturnType<typeof routes[P]>> : never;
+export type RouteStates = GetRouteStates<keyof typeof routes>;
 
+type GetRouteParams<P> = P extends Path ? Parameters<typeof routes[P]>[number] : never;
 export type RouteParams = GetRouteParams<keyof typeof routes>;
 
 const as = <T extends Record<string, unknown>>(value: T) => value;
 
 export type Routes = {
-  [k in keyof typeof routes]: (o: Partial<Parameters<typeof routes[k]>[number]>) => Route<RouteStates[k]>;
+  [k in keyof typeof routes]: (o: Parameters<typeof routes[k]>[number]) => Route<RouteStatesObj[k]>;
 };
 
 export default as<Routes>(routes);
