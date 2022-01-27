@@ -9,6 +9,7 @@ type GetComponentData<P> = P extends ComponentName
   ? {
       id: string;
       component: P;
+      routeParam?: string;
       props: Omit<Parameters<typeof components[P]>[number], 'id' | 'location'>;
     }
   : never;
