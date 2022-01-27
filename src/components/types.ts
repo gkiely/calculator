@@ -5,7 +5,7 @@ export type ComponentNames = {
   [key in ComponentName]: key;
 };
 
-type Distribute<P> = P extends ComponentName
+type GetComponentData<P> = P extends ComponentName
   ? {
       id: string;
       component: P;
@@ -13,4 +13,4 @@ type Distribute<P> = P extends ComponentName
     }
   : never;
 
-export type ComponentData = Distribute<ComponentName>;
+export type ComponentData = GetComponentData<ComponentName>;

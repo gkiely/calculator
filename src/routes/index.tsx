@@ -141,9 +141,9 @@ export type RouteStates = {
   [k in keyof typeof routes]: Partial<Nested<ReturnType<typeof routes[k]>>>;
 };
 
-type Distribute<P> = P extends Path ? Partial<Parameters<typeof routes[P]>[number]> : never;
+type GetRouteParams<P> = P extends Path ? Partial<Parameters<typeof routes[P]>[number]> : never;
 
-export type RouteParams = Distribute<keyof typeof routes>;
+export type RouteParams = GetRouteParams<keyof typeof routes>;
 
 const as = <T extends Record<string, unknown>>(value: T) => value;
 
