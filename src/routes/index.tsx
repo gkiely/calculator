@@ -7,9 +7,10 @@ import { componentNames } from '../utils';
 let idCount = 0;
 const id = (prefix?: string): string => `${prefix ? `${prefix}-` : ''}${++idCount}`;
 
+type Components = Array<ComponentData | ComponentData[]>;
 export type Route<T extends WeakObj = WeakObj> = {
   state?: T;
-  components: Array<ComponentData | ComponentData[]>;
+  components: Components;
 };
 
 const Button = (label: number | string): ComponentData => ({
@@ -36,7 +37,7 @@ const isOperator = (char: string) => ['+', '-', 'x', '÷'].includes(char);
 
 const index = ({ input = '' }: { input?: string }): Route<{ input: string }> => {
   const result = doMath(input);
-  const components: Route['components'] = [
+  const components: Components = [
     {
       id: id(componentNames.Result),
       component: componentNames.Result,
@@ -111,38 +112,43 @@ const index = ({ input = '' }: { input?: string }): Route<{ input: string }> => 
   };
 };
 
-// const test = ({ so }: { so?: string }): Route<{ sup?: string }> => {
-//   return {
-//     components: [
-//       {
-//         id: '2134',
-//         component: componentNames.Button,
-//         props: {
-//           text: 'hi',
-//         },
-//       },
-//     ],
-//     state: {
-//       sup: 'sup',
-//     },
-//   };
-// };
+const test = ({ so }: { so?: string }): Route<{ so?: string }> => {
+  return {
+    components: [
+      {
+        id: '2134',
+        component: componentNames.Button,
+        props: {
+          text: 'hi',
+        },
+      },
+    ],
+    state: {
+      so: 'sup',
+    },
+  };
+};
 
 const routes = {
   '/': index,
-  // test,
+  test,
 };
 
 export type Path = keyof typeof routes;
 type Nested<T> = T extends Route<infer A> ? A : never;
-export type RouteState = {
-  [k in keyof typeof routes]: Nested<ReturnType<typeof routes[k]>>;
+
+export type RouteStates = {
+  [k in keyof typeof routes]: Partial<Nested<ReturnType<typeof routes[k]>>>;
 };
+
+type Distribute<P> = P extends Path ? Partial<Parameters<typeof routes[P]>[number]> : never;
+
+export type RouteParams = Distribute<keyof typeof routes>;
 
 const as = <T extends Record<string, unknown>>(value: T) => value;
 
-type Routes = {
-  [k in keyof typeof routes]: (o: Partial<Parameters<typeof routes[k]>[number]>) => Route<RouteState[k]>;
+export type Routes = {
+  [k in keyof typeof routes]: (o: Partial<Parameters<typeof routes[k]>[number]>) => Route<RouteStates[k]>;
 };
 
 export default as<Routes>(routes);

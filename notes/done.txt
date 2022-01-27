@@ -14,6 +14,7 @@ Calculator
 - Add prettier x
 - Right now you can remove the `text` prop from the Button component in the route even though the component requires it
   - See if you can replace the WeakObj that is being used for props
+- Type the remaining weakObj's for routes
 
 
 SDUI - Amazing how it works

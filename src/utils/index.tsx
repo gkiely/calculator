@@ -1,5 +1,5 @@
-import { Location, WeakObj } from './types';
-import routes, { Route } from '../routes';
+import { Location } from './types';
+import routes, { Path, Route, RouteParams, RouteStates } from '../routes';
 import * as components from '../components';
 import * as styles from '../styles';
 import { ComponentData, ComponentName, ComponentNames } from '../components/types';
@@ -12,7 +12,7 @@ export const componentNames = (Object.keys(components) as Array<ComponentName>).
   {} as ComponentNames
 );
 
-export const getRoute = (path: keyof typeof routes, routeState: WeakObj): Route => {
+export const getRoute = <P extends Path>(path: P, routeState: RouteParams): Route<RouteStates[P]> => {
   if (!routes[path]) {
     console.warn(`Route does not exist: ${path}`);
   }
