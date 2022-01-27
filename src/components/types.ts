@@ -14,4 +14,6 @@ type GetComponentData<P> = P extends ComponentName
     }
   : never;
 
-export type ComponentData = GetComponentData<ComponentName>;
+export type ComponentData<C = ComponentName> = GetComponentData<C>;
+
+export type ComponentsList = Array<ComponentData | ComponentData[]>;

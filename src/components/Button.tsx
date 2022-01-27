@@ -30,14 +30,7 @@ export interface ButtonProps {
   location: Location;
 }
 
-const ButtonContainer = ({
-  id,
-  text,
-  routeParam = 'input',
-  operation = false,
-  wide = false,
-  location,
-}: ButtonProps) => {
+const ButtonContainer = ({ id, text, operation = false, wide = false, location: { update } }: ButtonProps) => {
   if (text === 'AC') {
     console.log('render');
   }
@@ -45,8 +38,8 @@ const ButtonContainer = ({
     <Button
       key={id}
       onClick={() => {
-        location.update((prev) => ({
-          [routeParam]: prev[routeParam] ? prev[routeParam] + text : text,
+        update((prev) => ({
+          input: prev.input ? prev.input + text : text,
         }));
       }}
       containerClassName={`${containerClass} ${getContainerWidthClass(wide)}`}

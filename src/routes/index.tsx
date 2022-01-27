@@ -1,19 +1,20 @@
 import stringMath from 'string-math';
 
-import { ComponentData } from '../components/types';
-import { WeakObj } from '../utils/types';
+import { ComponentData, ComponentName, ComponentNames, ComponentsList } from '../components/types';
+import { Merge, WeakObj } from '../utils/types';
 import { componentNames } from '../utils';
 
 let idCount = 0;
 const id = (prefix?: string): string => `${prefix ? `${prefix}-` : ''}${++idCount}`;
 
-type Components = Array<ComponentData | ComponentData[]>;
-export type Route<T extends WeakObj = WeakObj> = {
-  state?: T;
-  components: Components;
+// type ComponentsList = Array<ComponentData | ComponentData[]>;
+export type Route<S extends WeakObj = WeakObj, C extends ComponentName = ComponentName> = {
+  state?: S;
+  components: Array<ComponentData<C> | ComponentData<C>[]>;
 };
 
-const Button = (label: number | string): ComponentData => ({
+type ButtonComponent = ComponentData<'Button'>;
+const Button = (label: number | string): ButtonComponent => ({
   id: id(componentNames.Button),
   component: componentNames.Button,
   props: {
@@ -35,9 +36,13 @@ const doMath = (input: string): string => {
 
 const isOperator = (char: string) => ['+', '-', 'x', '÷'].includes(char);
 
-const index = ({ input = '' }: { input?: string }): Route<{ input: string }> => {
+type Index = {
+  input?: string;
+};
+
+const index = ({ input = '' }: Index): Route<{ input: string }, 'Button' | 'Result'> => {
   const result = doMath(input);
-  const components: Components = [
+  const components: ComponentsList = [
     {
       id: id(componentNames.Result),
       component: componentNames.Result,
@@ -112,7 +117,7 @@ const index = ({ input = '' }: { input?: string }): Route<{ input: string }> => 
   };
 };
 
-const test = ({ so }: { so?: string }): Route<{ so?: string }> => {
+const test = ({ so }: { so?: string }): Route<{ so?: string }, 'Button'> => {
   return {
     components: [
       {
@@ -136,16 +141,103 @@ const routes = {
 
 export type Path = keyof typeof routes;
 type Nested<T> = T extends Route<infer A> ? A : never;
+type NestedSecondArg<T> = T extends Route<infer A, infer B> ? B : never;
 
 export type RouteStatesObj = {
   [k in keyof typeof routes]: Nested<ReturnType<typeof routes[k]>>;
 };
+
+type ValueOf<T> = T[keyof T]; 
+
+type ComponentsInRoute = {
+  [k in keyof typeof routes]: NestedSecondArg<ReturnType<typeof routes[k]>>;
+};
+
+/* 
+Next steps
+- Another property, check if it extends and include params
+
+
+*/
+
+
+// Step 1
+// Reverse Components in Route
+
+// prettier-ignore
+type GetParams<P> = P extends Path ? {
+  [k in keyof ComponentNames]: {
+    [p in P]: ComponentsInRoute[P];
+  }
+  // [k in T]: k extends ComponentsInRoute[P] ? P : never
+} : never;
+
+type D = GetParams<'/' | 'test'>;
+
+type E = {
+  [k in keyof D]: SingleObjectType<D[k]>;
+}
+
+
+// type Get<U> = U extends Path ? {} : never;
+type F<P extends Path> = {
+  [k in keyof E]: k extends E[k][P] ? GetRouteParams<P> : never;
+}
+
+
+type G = F<'test'>;
+type H = F<'/'>;
+
+type ComponentParams = Merge<G, H>;
+
+/*
+type D = {
+    Button: "Button" | "Result";
+    Result: "Button" | "Result";
+} | {
+    Button: "Button";
+    Result: "Button";
+}
+
+// Loop through componentNames
+// if key extends value
+// We know this route has this component, return route
+// Otherwise it does not
+*/
+
+
+// type GetComponent<T> = T extends ComponentName ?
+
+// type E = GetComponent<D>
+// type GetParams<T, P extends Path> = T extends ComponentName ? {
+//   [k in T]: ComponentsInRoute[P] extends T ? never : P;
+// } : never;
+
+// Should return '/' | 'test'
+
+// type ComponentParams = {
+//   [k in keyof ComponentNames]: GetParams<k>;
+// }
+
+// type GetParams<T, U extends Path> = T extends ComponentNames ? T[U] extends : never;
+
+// type ComponentRoutes = {
+//   // [j in keyof ComponentNames]: {
+//   //   [k in Path]: NestedSecondArg<ReturnType<typeof routes[k]>>;
+//   // }
+//   [k in keyof ComponentNames]: GetParams<k, '/'>
+// }
 
 type GetRouteStates<P> = P extends Path ? Nested<ReturnType<typeof routes[P]>> : never;
 export type RouteStates = GetRouteStates<keyof typeof routes>;
 
 type GetRouteParams<P> = P extends Path ? Parameters<typeof routes[P]>[number] : never;
 export type RouteParams = GetRouteParams<keyof typeof routes>;
+
+type UnionToIntersection<U> = (U extends unknown ? (k: U) => void : never) extends (k: infer I) => void ? I : never;
+type SingleObjectType<U> = UnionToIntersection<U> extends infer O ? { [K in keyof O]: O[K] } : never;
+export type Params = SingleObjectType<RouteParams>;
+export type Param = keyof Params;
 
 const as = <T extends Record<string, unknown>>(value: T) => value;
 
