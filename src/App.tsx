@@ -2,13 +2,13 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { useState } from 'react';
 import isEqual from 'lodash.isequal';
 
-import routes, { RouteParams } from './routes';
+import { Path, RouteParams } from './routes';
 import { createRoute, getRoute } from './utils';
 import './styles.css';
 import * as styles from './styles';
 
 export function App() {
-  const [path, to] = useState<keyof typeof routes>('/');
+  const [path, to] = useState<Path>('/');
   const [routeParams, update] = useState<RouteParams>({});
   const route = getRoute(path, routeParams);
 
