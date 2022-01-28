@@ -1,7 +1,7 @@
 import stringMath from 'string-math';
 
 import { ComponentData, ComponentName, ComponentNames, ComponentsList } from '../components/types';
-import { Merge, WeakObj } from '../utils/types';
+import { WeakObj } from '../utils/types';
 import { componentNames } from '../utils';
 
 let idCount = 0;
@@ -129,7 +129,7 @@ const test = ({ so }: { so?: string }): Route<{ so?: string }, 'Button'> => {
       },
     ],
     state: {
-      so: 'sup',
+      so,
     },
   };
 };
@@ -141,93 +141,45 @@ const routes = {
 
 export type Path = keyof typeof routes;
 type Nested<T> = T extends Route<infer A> ? A : never;
+
+////////////////////////////////////////////////
+//// Get component parameters
+////////////////////////////////////////////////
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type NestedSecondArg<T> = T extends Route<infer A, infer B> ? B : never;
+type ComponentsInRoute = {
+  [k in keyof typeof routes]: NestedSecondArg<ReturnType<typeof routes[k]>>;
+};
+type GetParams<P> = P extends Path
+  ? {
+      [k in keyof ComponentNames]: {
+        [p in P]: ComponentsInRoute[P];
+      };
+    }
+  : never;
+
+type A = {
+  [k in keyof GetParams<Path>]: SingleObjectType<GetParams<Path>[k]>;
+};
+type B<P extends Path> = {
+  [k in keyof A]: k extends A[k][P] ? GetRouteParams<P> : never;
+};
+type C = {
+  [k in keyof Routes]: B<k>;
+}[Path];
+
+export type D = {
+  [k in keyof C]: C[k] extends never ? never : C[k];
+};
+
+export type ComponentParams = {
+  [k in keyof D]: UnionToIntersection<D[k]>;
+};
+//// End of getting component parameters /////
 
 export type RouteStatesObj = {
   [k in keyof typeof routes]: Nested<ReturnType<typeof routes[k]>>;
 };
-
-type ValueOf<T> = T[keyof T]; 
-
-type ComponentsInRoute = {
-  [k in keyof typeof routes]: NestedSecondArg<ReturnType<typeof routes[k]>>;
-};
-
-/* 
-Next steps
-- Another property, check if it extends and include params
-
-
-*/
-
-
-// Step 1
-// Reverse Components in Route
-
-// prettier-ignore
-type GetParams<P> = P extends Path ? {
-  [k in keyof ComponentNames]: {
-    [p in P]: ComponentsInRoute[P];
-  }
-  // [k in T]: k extends ComponentsInRoute[P] ? P : never
-} : never;
-
-type D = GetParams<'/' | 'test'>;
-
-type E = {
-  [k in keyof D]: SingleObjectType<D[k]>;
-}
-
-
-// type Get<U> = U extends Path ? {} : never;
-type F<P extends Path> = {
-  [k in keyof E]: k extends E[k][P] ? GetRouteParams<P> : never;
-}
-
-
-type G = F<'test'>;
-type H = F<'/'>;
-
-type ComponentParams = Merge<G, H>;
-
-/*
-type D = {
-    Button: "Button" | "Result";
-    Result: "Button" | "Result";
-} | {
-    Button: "Button";
-    Result: "Button";
-}
-
-// Loop through componentNames
-// if key extends value
-// We know this route has this component, return route
-// Otherwise it does not
-*/
-
-
-// type GetComponent<T> = T extends ComponentName ?
-
-// type E = GetComponent<D>
-// type GetParams<T, P extends Path> = T extends ComponentName ? {
-//   [k in T]: ComponentsInRoute[P] extends T ? never : P;
-// } : never;
-
-// Should return '/' | 'test'
-
-// type ComponentParams = {
-//   [k in keyof ComponentNames]: GetParams<k>;
-// }
-
-// type GetParams<T, U extends Path> = T extends ComponentNames ? T[U] extends : never;
-
-// type ComponentRoutes = {
-//   // [j in keyof ComponentNames]: {
-//   //   [k in Path]: NestedSecondArg<ReturnType<typeof routes[k]>>;
-//   // }
-//   [k in keyof ComponentNames]: GetParams<k, '/'>
-// }
-
 type GetRouteStates<P> = P extends Path ? Nested<ReturnType<typeof routes[P]>> : never;
 export type RouteStates = GetRouteStates<keyof typeof routes>;
 

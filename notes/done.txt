@@ -17,6 +17,7 @@ Calculator
 - Type the remaining weakObj's for routes
 - If we can rewrite ComponentData so we can instatiate it at the route level and say, these are the possible Components in this Route
   - We could narrow down the param types for the component
+- Hook up route params to components
 
 
 SDUI - Amazing how it works

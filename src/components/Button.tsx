@@ -27,13 +27,10 @@ export interface ButtonProps {
   routeParam?: string;
   operation?: boolean;
   wide?: boolean;
-  location: Location;
+  location: Location<'Button'>;
 }
 
 const ButtonContainer = ({ id, text, operation = false, wide = false, location: { update } }: ButtonProps) => {
-  if (text === 'AC') {
-    console.log('render');
-  }
   return (
     <Button
       key={id}

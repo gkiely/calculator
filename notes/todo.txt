@@ -1,8 +1,8 @@
 TODO:
-- Hook up route params to components
 - All params are required to be optional in the route as they are all using weakObj
   - Either set so it's always optional
   - Or fix so when calling getRoute or update, it uses the generic instead of WeakObj
+- Eslint plugin error
 - Keyboard shortcuts
 - Update to newest CRA
 - Add history
