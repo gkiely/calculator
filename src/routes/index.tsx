@@ -168,12 +168,8 @@ type C = {
   [k in keyof Routes]: B<k>;
 }[Path];
 
-export type D = {
-  [k in keyof C]: C[k] extends never ? never : C[k];
-};
-
 export type ComponentParams = {
-  [k in keyof D]: UnionToIntersection<D[k]>;
+  [k in keyof C]: UnionToIntersection<C[k] extends never ? never : C[k]>;
 };
 //// End of getting component parameters /////
 

@@ -9,6 +9,7 @@
     "moduleResolution": "node",
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "noErrorTruncation": true,
     "lib": [
       "dom",
       "es2015",
