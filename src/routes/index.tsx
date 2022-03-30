@@ -10,8 +10,7 @@ type Route<T extends WeakObj, C extends ComponentName = ComponentName> = (arg: T
 let idCount = 0;
 const id = (prefix?: string): string => `${prefix ? `${prefix}-` : ''}${++idCount}`;
 
-type ButtonComponent = ComponentData<'Button'>;
-const Button = (label: number | string): ButtonComponent => ({
+const Button = (label: number | string): ComponentData<'Button'> => ({
   id: id(componentNames.Button),
   component: componentNames.Button,
   props: {
