@@ -1,6 +1,5 @@
 import React from 'react';
-
-import { Location } from '../utils/types';
+import type { Location } from '../utils/types';
 import { buttonClass, getButtonColorClass, getContainerWidthClass, containerClass } from '../styles';
 
 interface ComponentProps {
