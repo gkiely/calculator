@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+import { useRef, useState } from 'react';
 import stringMath from 'string-math';
 import { ComponentData, ComponentName, ComponentsList } from '../components/types';
 import { componentNames } from '../utils';
@@ -67,6 +69,21 @@ const screen = (result: string, input: string): ComponentsList => {
 };
 
 const index: Route<{ input?: string }, 'Button' | 'Result'> = ({ input = '' }) => {
+  // console.log('render');
+  // useEffect(() => {
+  //   if(input.includes('3')){
+  //     console.log('trigger render');
+  //   }
+  // }, [input]);
+
+  // if(input.includes('3')){
+  //   // return immediately with loading state
+  //   // store abortcontroller in Map
+  //   // if render runs again and input does not incl 3, Abort
+  // }
+
+  // console.log(clicks);
+  // const clicks = useRef(0);
   const result = doMath(input);
   const components = screen(result, input);
 
