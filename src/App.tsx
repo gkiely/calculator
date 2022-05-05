@@ -13,7 +13,7 @@ export function App() {
   const route = getRoute(path, routeParams);
 
   // Allows updating state from route
-  if (route.state && !isEqual(route.state, routeParams)) {
+  if (route?.state && !isEqual(route.state, routeParams)) {
     update(route.state);
   }
 

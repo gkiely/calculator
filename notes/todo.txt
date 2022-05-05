@@ -1,4 +1,18 @@
 TODO:
+- Setup an event listener like in `shell` so you can call updates from the server
+- Write a comment or add to readme why we're using the state object
+  - It allows triggering re-renders without doing recursion (each update is rendered)
+  - It allows maintaining state without storing a key: value cache for every user
+  - It allows calling update from any component without the entire state
+  - It's pure
+  - It isn't used in the app, except for re-rendering
+  - It basically avoids me having to pass props to every component to then pass to update
+    - Each component has access to state when calling update, but otherwise it has no access
+
+- Rename from routeParams -> routeState
+- Remove sectionCount in utils/index.tsx
+- Clean up types
+
 - All params are required to be optional
   - See if it's because return type is using union
 

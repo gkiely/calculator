@@ -1,7 +1,5 @@
-import { useEffect } from 'react';
-import { useRef, useState } from 'react';
 import stringMath from 'string-math';
-import { ComponentData, ComponentName, ComponentsList } from '../components/types';
+import { ComponentData, ComponentName } from '../components/types';
 import { componentNames } from '../utils';
 import { WeakObj } from '../utils/types';
 import type { Route as RouteResult } from './types';
@@ -34,126 +32,99 @@ const doMath = (input: string): string => {
 
 const isOperator = (char: string) => ['+', '-', 'x', '÷'].includes(char);
 
-const screen = (result: string, input: string): ComponentsList => {
-  return [
-    {
-      id: id(componentNames.Result),
-      component: componentNames.Result,
-      props: {
-        result,
-        input,
-      },
-    },
-    [
-      {
-        id: id(componentNames.Button),
-        component: componentNames.Button,
-        props: {
-          text: 'AC',
-        },
-      },
-      {
-        id: id(componentNames.Button),
-        component: componentNames.Button,
-        props: {
-          text: '=',
-          wide: true,
-        },
-      },
-    ],
-    [7, 8, 9, 'x'].map((o) => Button(o)),
-    [4, 5, 6, '÷'].map((o) => Button(o)),
-    [1, 2, 3, '+'].map((o) => Button(o)),
-    [0, '-'].map((o) => Button(o)),
-  ];
-};
-
-const index: Route<{ input?: string }, 'Button' | 'Result'> = ({ input = '' }) => {
-  // console.log('render');
-  // useEffect(() => {
-  //   if(input.includes('3')){
-  //     console.log('trigger render');
-  //   }
-  // }, [input]);
-
-  // if(input.includes('3')){
-  //   // return immediately with loading state
-  //   // store abortcontroller in Map
-  //   // if render runs again and input does not incl 3, Abort
-  // }
-
-  // console.log(clicks);
-  // const clicks = useRef(0);
-  const result = doMath(input);
-  const components = screen(result, input);
-
-  /**
-   * State updates
-   */
-  // Clear
+const getState = (input: string) => {
   const slice = input.slice(-2) ?? '';
+
+  // Reset
   if (slice === 'AC') {
     return {
-      state: {
-        input: '',
-      },
-      components,
+      input: '',
     };
   }
 
-  // Allow calculating from a previous result
-  const lastEntry = slice.charAt(0);
-  const currentEntry = slice.charAt(1);
-  if (lastEntry === '=') {
+  // Calculate from a previous result
+  const prevEntry = slice.charAt(0);
+  const entry = slice.charAt(1);
+  if (prevEntry === '=') {
     const r = doMath(input.substring(0, input.length - 1));
     return {
-      state: {
-        input: r + currentEntry,
-      },
-      components,
+      input: r + entry,
     };
   }
 
   // Prevent double operators
-  if ((isOperator(currentEntry) || currentEntry === '=') && isOperator(lastEntry)) {
+  if ((isOperator(entry) || entry === '=') && isOperator(prevEntry)) {
     return {
-      state: {
-        input: input.substring(0, input.length - 1),
-      },
-      components,
+      input: input.substring(0, input.length - 1),
     };
   }
-
-  return {
-    components,
-  };
 };
 
-const test: Route<{ so?: string }, 'Button'> = ({ so }) => {
+const index: Route<{ input?: string }, 'Button' | 'Result'> = ({ input = '' }) => {
+  const result = doMath(input);
+  const state = getState(input);
+
   return {
+    state,
     components: [
       {
-        id: '2134',
-        component: componentNames.Button,
+        id: id(componentNames.Result),
+        component: componentNames.Result,
         props: {
-          text: 'hi',
+          result,
+          input,
         },
-        // component: componentNames.Result,
-        // props: {
-        //   result: 'so',
-        //   input: '',
-        // },
       },
+      [
+        {
+          id: id(componentNames.Button),
+          component: componentNames.Button,
+          props: {
+            text: 'AC',
+          },
+        },
+        {
+          id: id(componentNames.Button),
+          component: componentNames.Button,
+          props: {
+            text: '=',
+            wide: true,
+          },
+        },
+      ],
+      [7, 8, 9, 'x'].map((o) => Button(o)),
+      [4, 5, 6, '÷'].map((o) => Button(o)),
+      [1, 2, 3, '+'].map((o) => Button(o)),
+      [0, '-'].map((o) => Button(o)),
     ],
-    state: {
-      so,
-    },
   };
 };
+
+// const test: Route<{ so?: string }, 'Button'> = ({ so }) => {
+//   return {
+//     components: [
+//       {
+//         id: '2134',
+//         component: componentNames.Button,
+//         props: {
+//           text: 'hi',
+//         },
+//         // component: componentNames.Result,
+//         // props: {
+//         //   result: 'so',
+//         //   input: '',
+//         // },
+//       },
+//     ],
+//     state: {
+//       so,
+//     },
+//   };
+// };
 
 const routes = {
   '/': index,
-  test,
+  // test,
 };
 
 export type RoutesType = typeof routes;

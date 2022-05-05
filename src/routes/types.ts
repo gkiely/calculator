@@ -13,8 +13,7 @@ type Nested<T> = T extends Route<infer A> ? A : never;
 ////////////////////////////////////////////////
 //// Get component parameters
 ////////////////////////////////////////////////
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-type NestedSecondArg<T> = T extends Route<infer A, infer B> ? B : never;
+type NestedSecondArg<T> = T extends Route<WeakObj, infer R> ? R : never;
 type ComponentsInRoute = {
   [k in keyof RoutesType]: NestedSecondArg<ReturnType<RoutesType[k]>>;
 };
