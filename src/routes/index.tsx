@@ -49,6 +49,9 @@ const isOperator = (char: string) => ['+', '-', 'x', '÷'].includes(char);
 const getState = (state: State): State | undefined => {
   const input = state.input ?? '';
   const slice = input.slice(-2) ?? '';
+  const secondPrevChar = input.slice(-3, -2);
+  const prevChar = slice.charAt(0);
+  const nextChar = slice.charAt(1);
 
   // Reset
   if (slice === 'AC') {
@@ -59,18 +62,24 @@ const getState = (state: State): State | undefined => {
   }
 
   // Calculate from a previous result
-  const prevEntry = slice.charAt(0);
-  const entry = slice.charAt(1);
-  if (prevEntry === '=') {
+  if (prevChar === '=') {
     const r = doMath(input.substring(0, input.length - 1));
     return {
       ...state,
-      input: r + entry,
+      input: r + nextChar,
+    };
+  }
+
+  // Prevent 0 followed by another 0
+  if (isOperator(secondPrevChar) && prevChar === '0' && !isOperator(nextChar)) {
+    return {
+      ...state,
+      input: input.substring(0, input.length - 1),
     };
   }
 
   // Prevent double operators
-  if ((isOperator(entry) || entry === '=') && isOperator(prevEntry)) {
+  if ((isOperator(nextChar) || nextChar === '=') && isOperator(prevChar)) {
     return {
       ...state,
       input: input.substring(0, input.length - 1),
@@ -81,7 +90,7 @@ const getState = (state: State): State | undefined => {
 
 const getStore = (store: Store, input: string): Store | undefined => {
   // Testing fetch and re-render
-  if (!store.loading && input === '3') {
+  if (!store.loading && input === '333') {
     console.log('fetch');
     fetch('https://jsonplaceholder.typicode.com/users/1')
       .then((res) => res.json())
@@ -120,7 +129,8 @@ const index: Route<State, Components, Store> = (routeState: State, routeStore: S
   const store = getStore(routeStore, state?.input ?? input);
   resetId();
 
-  console.log('server', routeState, state);
+  // Debugging
+  // console.log('server', routeState, state);
 
   const buttonText = routeState.buttonText ?? 3;
 

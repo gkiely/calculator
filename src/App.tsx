@@ -37,14 +37,12 @@ export function App() {
     };
   }, []);
 
-  console.log('client', route.state, routeState);
-
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore - we need to move RouteStore to be the 2nd argument of Route<State, Store, Components>
   routeStore.current = route.store;
 
   // Debugging
-  // console.log('render:', route.state, routeState, route.store, routeStore.current);
+  // console.log('client:', route.state, routeState, route.store, routeStore.current);
   // console.log(route.components);
 
   if (!route) return null;
