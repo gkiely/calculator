@@ -22,6 +22,8 @@ Calculator
 - Remove sectionCount in utils/index.tsx
 - Setup an event listener like in `shell` so you can call updates from the server
 - Simulate doing a fetch and re-render x
+- Simulate doing a fetch and re-render and update a button x
+- pass routeStore to getStore so state is persisted unless cleared x
 
 SDUI - Amazing how it works
 - Immediate mode, encourages writing it in a clean, functional way

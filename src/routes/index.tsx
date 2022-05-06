@@ -46,12 +46,14 @@ const doMath = (input: string): string => {
 
 const isOperator = (char: string) => ['+', '-', 'x', '÷'].includes(char);
 
-const getState = (input: string): State | undefined => {
+const getState = (state: State): State | undefined => {
+  const input = state.input ?? '';
   const slice = input.slice(-2) ?? '';
 
   // Reset
   if (slice === 'AC') {
     return {
+      buttonText: 3,
       input: '',
     };
   }
@@ -62,6 +64,7 @@ const getState = (input: string): State | undefined => {
   if (prevEntry === '=') {
     const r = doMath(input.substring(0, input.length - 1));
     return {
+      ...state,
       input: r + entry,
     };
   }
@@ -69,45 +72,57 @@ const getState = (input: string): State | undefined => {
   // Prevent double operators
   if ((isOperator(entry) || entry === '=') && isOperator(prevEntry)) {
     return {
+      ...state,
       input: input.substring(0, input.length - 1),
     };
   }
+  if (state) return state;
 };
 
 const getStore = (store: Store, input: string): Store | undefined => {
   // Testing fetch and re-render
-  // if (!store.loading && input.includes('3')) {
-  //   console.log('fetch');
-  //   fetch('https://jsonplaceholder.typicode.com/users/1')
-  //     .then((res) => res.json())
-  //     .then(() => {
-  //       return new Promise((resolve) => setTimeout(resolve, 3000));
-  //     })
-  //     .then((data) => {
-  //       console.log('success');
-  //       console.log(data);
-  //     })
-  //     .finally(() => emitter.emit('store'));
-  //   return {
-  //     loading: true,
-  //   };
-  // }
+  if (!store.loading && input === '3') {
+    console.log('fetch');
+    fetch('https://jsonplaceholder.typicode.com/users/1')
+      .then((res) => res.json())
+      // .then(async (data) => {
+      //   await new Promise((resolve) => setTimeout(resolve, 1000));
+      //   return data;
+      // })
+      .then((data) => {
+        console.log('success');
+        console.log(data);
+        emitter.emit('update', {
+          buttonText: data.id,
+        });
+      })
+      .finally(() => emitter.emit('store'));
+    return {
+      loading: true,
+    };
+  }
   if (store) return store;
 };
 
 type State = {
   input?: string;
+  buttonText?: number;
 };
 type Store = {
   loading?: boolean;
 };
 type Components = ComponentNames['Button'] | ComponentNames['Result'];
 
-const index: Route<State, Components, Store> = ({ input = '' }, routeStore: Store = {}) => {
+const index: Route<State, Components, Store> = (routeState: State, routeStore: Store = {}) => {
+  const input = routeState.input ?? '';
   const result = doMath(input);
-  const state = getState(input);
+  const state = getState(routeState);
   const store = getStore(routeStore, state?.input ?? input);
   resetId();
+
+  console.log('server', routeState, state);
+
+  const buttonText = routeState.buttonText ?? 3;
 
   return {
     store,
@@ -140,7 +155,7 @@ const index: Route<State, Components, Store> = ({ input = '' }, routeStore: Stor
       ],
       [7, 8, 9, 'x'].map((o) => Button(o)),
       [4, 5, 6, '÷'].map((o) => Button(o)),
-      [1, 2, 3, '+'].map((o) => Button(o)),
+      [1, 2, buttonText, '+'].map((o) => Button(o)),
       [0, '-'].map((o) => Button(o)),
     ],
   };

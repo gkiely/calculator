@@ -7,7 +7,7 @@ export type Location<P extends ComponentName = ComponentName> = {
   path: Path;
   param?: Param;
   to: (path: Path, o: Params) => void;
-  update: (o: React.SetStateAction<ComponentParams[P]>) => void;
+  update: (o: (state: ComponentParams[P]) => ComponentParams[P]) => void;
 };
 
 // TODO: Delete by the end of march 2022

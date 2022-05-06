@@ -23,6 +23,12 @@ export function App() {
     emitter.on('render', () => {
       render((s) => s + 1);
     });
+    emitter.on('update', (payload) => {
+      update((state) => ({
+        ...state,
+        ...payload,
+      }));
+    });
     emitter.on('store', (payload: RouteStore) => {
       routeStore.current = payload;
     });
@@ -30,6 +36,8 @@ export function App() {
       emitter.removeAllListeners();
     };
   }, []);
+
+  console.log('client', route.state, routeState);
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore - we need to move RouteStore to be the 2nd argument of Route<State, Store, Components>
@@ -49,7 +57,15 @@ export function App() {
             to(nextPath);
             update(typeof o === 'undefined' ? (prev) => prev : o);
           },
-          update,
+          update: (fn) => {
+            const result = fn(routeState);
+            if (result) {
+              update((s) => ({
+                ...s,
+                ...result,
+              }));
+            }
+          },
         })
       )}
     </div>
