@@ -7,8 +7,17 @@ import type { Route as RouteResult } from './types';
 export * from './types';
 type Route<T extends WeakObj, C extends ComponentName = ComponentName> = (arg: T) => RouteResult<T, C>;
 
-let idCount = 0;
-const id = (prefix?: string): string => `${prefix ? `${prefix}-` : ''}${++idCount}`;
+const idGenerator = () => {
+  let index = 0;
+  return {
+    id: (prefix = ''): string => {
+      return prefix + ++index;
+    },
+    resetId: () => (index = 0),
+  };
+};
+
+const { id, resetId } = idGenerator();
 
 const Button = (label: number | string): ComponentData<'Button'> => ({
   id: id(componentNames.Button),
@@ -60,9 +69,15 @@ const getState = (input: string) => {
   }
 };
 
-const index: Route<{ input?: string }, 'Button' | 'Result'> = ({ input = '' }) => {
+type State = {
+  input?: string;
+};
+type ComponentNames = 'Button' | 'Result';
+
+const index: Route<State, ComponentNames> = ({ input = '' }) => {
   const result = doMath(input);
   const state = getState(input);
+  resetId();
 
   return {
     state,

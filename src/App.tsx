@@ -2,18 +2,18 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { useState } from 'react';
 import isEqual from 'lodash.isequal';
 
-import { Path, RouteParams } from './routes';
-import { createRoute, getRoute } from './utils';
+import { Path, RouteState } from './routes';
+import { createSection, getRoute } from './utils';
 import './styles.css';
 import * as styles from './styles';
 
 export function App() {
   const [path, to] = useState<Path>('/');
-  const [routeParams, update] = useState<RouteParams>({});
-  const route = getRoute(path, routeParams);
+  const [routeState, update] = useState<RouteState>({});
+  const route = getRoute(path, routeState);
 
   // Allows updating state from route
-  if (route?.state && !isEqual(route.state, routeParams)) {
+  if (route?.state && !isEqual(route.state, routeState)) {
     update(route.state);
   }
 
@@ -21,7 +21,7 @@ export function App() {
   return (
     <div className={styles.app}>
       {route.components.map((data) =>
-        createRoute(data, {
+        createSection(data, {
           path,
           to: (nextPath, o) => {
             to(nextPath);

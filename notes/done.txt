@@ -18,10 +18,12 @@ Calculator
 - If we can rewrite ComponentData so we can instatiate it at the route level and say, these are the possible Components in this Route
   - We could narrow down the param types for the component
 - Hook up route params to components
-
+- Rename from routeParams -> routeState
+- Remove sectionCount in utils/index.tsx
 
 SDUI - Amazing how it works
 - Immediate mode, encourages writing it in a clean, functional way
 - Focuses on the input/output
 - Worrying about state and machines not needed
 - Cross platform
+

@@ -1,5 +1,5 @@
 import { Location } from './types';
-import routes, { Path, Route, RouteParams, RouteStates } from '../routes';
+import routes, { Path, Route, RouteState, RouteStates } from '../routes';
 import * as components from '../components';
 import * as styles from '../styles';
 import { ComponentData, ComponentName, ComponentNames } from '../components/types';
@@ -12,7 +12,7 @@ export const componentNames = (Object.keys(components) as Array<ComponentName>).
   {} as ComponentNames
 );
 
-export const getRoute = (path: Path, routeState: RouteParams): Route<RouteStates> => {
+export const getRoute = (path: Path, routeState: RouteState): Route<RouteStates> => {
   if (!routes[path]) {
     console.warn(`Route does not exist: ${path}`);
   }
@@ -34,12 +34,12 @@ export const getComponent = (data: ComponentData, location: Location): JSX.Eleme
 /**
  * Handles grouping UI into sections
  */
-// TODO: remove sectionCount in favor of setting id on server w/ above syntax
-let sectionCount = 0;
-export const createRoute = (data: ComponentData | ComponentData[], location: Location) => {
+export const createSection = (data: ComponentData | ComponentData[], location: Location) => {
   if (Array.isArray(data)) {
+    // Combine id's to make a unique id that persists across re-renders
+    const key = data.map((o) => o.id).join('-');
     return (
-      <section className={styles.section} key={++sectionCount}>
+      <section className={styles.section} key={key}>
         {data.map((item) => getComponent(item, location))}
       </section>
     );
