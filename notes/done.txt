@@ -20,6 +20,8 @@ Calculator
 - Hook up route params to components
 - Rename from routeParams -> routeState
 - Remove sectionCount in utils/index.tsx
+- Setup an event listener like in `shell` so you can call updates from the server
+- Simulate doing a fetch and re-render x
 
 SDUI - Amazing how it works
 - Immediate mode, encourages writing it in a clean, functional way

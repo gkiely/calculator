@@ -1,13 +1,18 @@
 import stringMath from 'string-math';
-import { ComponentData, ComponentName } from '../components/types';
+import EventEmitter from 'events';
+import { ComponentData, ComponentName, ComponentNames } from '../components/types';
 import { componentNames } from '../utils';
 import { WeakObj } from '../utils/types';
 import type { Route as RouteResult } from './types';
+export const emitter = new EventEmitter();
 
 export * from './types';
-type Route<T extends WeakObj, C extends ComponentName = ComponentName> = (arg: T) => RouteResult<T, C>;
+type Route<T extends WeakObj, C extends ComponentName = ComponentName, S extends WeakObj = WeakObj> = (
+  state: T,
+  store: S
+) => RouteResult<T, C, S>;
 
-const idGenerator = () => {
+const idFactory = () => {
   let index = 0;
   return {
     id: (prefix = ''): string => {
@@ -17,7 +22,7 @@ const idGenerator = () => {
   };
 };
 
-const { id, resetId } = idGenerator();
+const { id, resetId } = idFactory();
 
 const Button = (label: number | string): ComponentData<'Button'> => ({
   id: id(componentNames.Button),
@@ -41,7 +46,7 @@ const doMath = (input: string): string => {
 
 const isOperator = (char: string) => ['+', '-', 'x', '÷'].includes(char);
 
-const getState = (input: string) => {
+const getState = (input: string): State | undefined => {
   const slice = input.slice(-2) ?? '';
 
   // Reset
@@ -69,17 +74,43 @@ const getState = (input: string) => {
   }
 };
 
+const getStore = (store: Store, input: string): Store | undefined => {
+  // Testing fetch and re-render
+  // if (!store.loading && input.includes('3')) {
+  //   console.log('fetch');
+  //   fetch('https://jsonplaceholder.typicode.com/users/1')
+  //     .then((res) => res.json())
+  //     .then(() => {
+  //       return new Promise((resolve) => setTimeout(resolve, 3000));
+  //     })
+  //     .then((data) => {
+  //       console.log('success');
+  //       console.log(data);
+  //     })
+  //     .finally(() => emitter.emit('store'));
+  //   return {
+  //     loading: true,
+  //   };
+  // }
+  if (store) return store;
+};
+
 type State = {
   input?: string;
 };
-type ComponentNames = 'Button' | 'Result';
+type Store = {
+  loading?: boolean;
+};
+type Components = ComponentNames['Button'] | ComponentNames['Result'];
 
-const index: Route<State, ComponentNames> = ({ input = '' }) => {
+const index: Route<State, Components, Store> = ({ input = '' }, routeStore: Store = {}) => {
   const result = doMath(input);
   const state = getState(input);
+  const store = getStore(routeStore, state?.input ?? input);
   resetId();
 
   return {
+    store,
     state,
     components: [
       {
@@ -115,19 +146,19 @@ const index: Route<State, ComponentNames> = ({ input = '' }) => {
   };
 };
 
-// const test: Route<{ so?: string }, 'Button'> = ({ so }) => {
+// const test: Route<{ so?: string }, typeof componentNames.Result> = ({ so }) => {
 //   return {
 //     components: [
 //       {
 //         id: '2134',
-//         component: componentNames.Button,
+//         component: componentNames.Result,
 //         props: {
-//           text: 'hi',
+//           result: 'so',
+//           input: '',
 //         },
-//         // component: componentNames.Result,
+//         // component: componentNames.Button,
 //         // props: {
-//         //   result: 'so',
-//         //   input: '',
+//         //   text: 'hi',
 //         // },
 //       },
 //     ],

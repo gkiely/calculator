@@ -34,8 +34,8 @@ const ButtonContainer = ({ id, text, operation = false, wide = false, location: 
     <Button
       key={id}
       onClick={() => {
-        update((prev) => ({
-          input: prev.input ? prev.input + text : text,
+        update(({ input = '' }) => ({
+          input: input + text,
         }));
       }}
       containerClassName={`${containerClass} ${getContainerWidthClass(wide)}`}
