@@ -1,5 +1,4 @@
-TODO:  
-- Move store to be second argument type and remove @ts-ignore from App.tsx
+TODO:
 - Instead of Location<'Button'> for a container it should be Location<'/'>
   - Containers should be written for routes, but no updates to components are needed
 - Clean up types

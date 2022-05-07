@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Location } from '../utils/types';
 import { buttonClass, getButtonColorClass, getContainerWidthClass, containerClass } from '../styles';
+import { Path } from '../routes/types';
 
 interface ComponentProps {
   containerClassName?: string;
@@ -27,16 +28,21 @@ export interface ButtonProps {
   operation?: boolean;
   wide?: boolean;
   location: Location<'Button'>;
+  to?: Path;
 }
 
-const ButtonContainer = ({ id, text, operation = false, wide = false, location: { update } }: ButtonProps) => {
+const ButtonContainer = ({ id, text, operation = false, wide = false, location, to }: ButtonProps) => {
   return (
     <Button
       key={id}
       onClick={() => {
-        update(({ input = '' }) => ({
-          input: input + text,
-        }));
+        if (to) {
+          location.to(to);
+        } else {
+          location.update(({ input = '' }) => ({
+            input: input + text,
+          }));
+        }
       }}
       containerClassName={`${containerClass} ${getContainerWidthClass(wide)}`}
       className={`${buttonClass} ${getButtonColorClass(operation)}`}

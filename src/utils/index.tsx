@@ -1,5 +1,5 @@
 import { Location } from './types';
-import routes, { Path, Route, RouteState, RouteStates, RouteStore } from '../routes';
+import routes, { Path, RouteResult, RouteState, RouteStates, RouteStore } from '../routes';
 import * as components from '../components';
 import * as styles from '../styles';
 import { ComponentData, ComponentName, ComponentNames } from '../components/types';
@@ -12,7 +12,7 @@ export const componentNames = (Object.keys(components) as Array<ComponentName>).
   {} as ComponentNames
 );
 
-export const getRoute = (path: Path, routeState: RouteState, routeStore: RouteStore): Route<RouteStates> => {
+export const getRoute = (path: Path, routeState: RouteState, routeStore: RouteStore): RouteResult<RouteStates> => {
   if (!routes[path]) {
     console.warn(`Route does not exist: ${path}`);
   }

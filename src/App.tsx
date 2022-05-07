@@ -28,14 +28,20 @@ export function App() {
     emitter.on('store', (payload: RouteStore) => {
       routeStore.current = payload;
     });
+    emitter.on('to', (path: Path, payload) => {
+      console.log('to', path);
+      to(path);
+      update(typeof payload === 'undefined' ? (prev) => prev : payload);
+    });
     return () => {
       emitter.removeAllListeners();
     };
   }, []);
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore - we need to move RouteStore to be the 2nd argument of Route<State, Store, Components>
-  routeStore.current = route.store;
+  routeStore.current = {
+    ...route.store,
+    prevPath: path,
+  };
 
   // Debugging
   console.log('client:', route.state, routeState, route.store, routeStore.current);
@@ -47,17 +53,13 @@ export function App() {
       {route.components.map((data) =>
         createSection(data, {
           path,
-          to: (nextPath, o) => {
-            to(nextPath);
-            update(typeof o === 'undefined' ? (prev) => prev : o);
+          to: (nextPath, payload) => {
+            emitter.emit('to', nextPath, payload);
           },
           update: (fn) => {
             const result = fn(routeState);
             if (result) {
-              update((s) => ({
-                ...s,
-                ...result,
-              }));
+              emitter.emit('update', result);
             }
           },
         })

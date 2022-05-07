@@ -1,12 +1,15 @@
 import { ComponentName } from '../components/types';
 import { Path, Param, Params, ComponentParams } from '../routes';
 
+export type WeakStore = WeakObj & {
+  prevPath?: string;
+};
 export type WeakObj = Record<string, unknown>;
 
 export type Location<P extends ComponentName = ComponentName> = {
   path: Path;
   param?: Param;
-  to: (path: Path, o: Params) => void;
+  to: (path: Path, o?: Params) => void;
   update: (o: (state: ComponentParams[P]) => ComponentParams[P]) => void;
 };
 
@@ -17,7 +20,7 @@ export type Location<P extends ComponentName = ComponentName> = {
 
 // Get nested generic
 // https://stackoverflow.com/questions/63631364/infer-nested-generic-types-in-typescript
-// type Nested<T> = T extends Route<infer A> ? A : never;
+// type Nested<T> = T extends RouteResult<infer A> ? A : never;
 
 // Typescript union type to single mapped type
 // https://stackoverflow.com/questions/56981452/typescript-union-type-to-single-mapped-type

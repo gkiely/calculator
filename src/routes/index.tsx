@@ -1,17 +1,14 @@
 import stringMath from 'string-math';
 import EventEmitter from 'events';
-import { ComponentData, ComponentName, ComponentNames } from '../components/types';
+import { ComponentData, ComponentNames } from '../components/types';
 import { componentNames } from '../utils';
-import { WeakObj } from '../utils/types';
-import type { Route as RouteResult } from './types';
+import { WeakObj, WeakStore } from '../utils/types';
+import type { Route } from './types';
 export const emitter = new EventEmitter();
 import { nanoid } from 'nanoid';
+import secondRoute from './second';
 
 export * from './types';
-type Route<T extends WeakObj, C extends ComponentName = ComponentName, S extends WeakObj = WeakObj> = (
-  state: T,
-  store: S
-) => RouteResult<T, C, S>;
 
 const idFactory = () => {
   let index = 0;
@@ -134,6 +131,9 @@ const getStore = (store: Store, input: string): Store | undefined => {
       },
     };
   }
+  if (input === '444' && store.prevPath === '/') {
+    emitter.emit('to', '/second');
+  }
   if (store) return store;
 };
 
@@ -141,7 +141,7 @@ type State = {
   input?: string;
   buttonText?: number;
 };
-type Store = WeakObj & {
+type Store = WeakStore & {
   loading?: boolean;
   requests?: {
     [k: string]: string;
@@ -190,6 +190,15 @@ const index: Route<State, Components, Store> = (routeState: State, routeStore: S
           },
         },
       ],
+      {
+        id: id(componentNames.Button),
+        component: componentNames.Button,
+        props: {
+          text: 'Navigate to second route',
+          to: '/second',
+          wide: true,
+        },
+      },
       [7, 8, 9, 'x'].map((o) => Button(o)),
       [4, 5, 6, '÷'].map((o) => Button(o)),
       [1, 2, buttonText, '+'].map((o) => Button(o)),
@@ -222,6 +231,7 @@ const index: Route<State, Components, Store> = (routeState: State, routeStore: S
 
 const routes = {
   '/': index,
+  '/second': secondRoute,
   // test,
 };
 

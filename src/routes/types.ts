@@ -2,7 +2,12 @@ import type { RoutesType } from './index';
 import type { ComponentData, ComponentName, ComponentNames } from '../components/types';
 import type { WeakObj } from '../utils/types';
 
-export type Route<
+export type Route<T extends WeakObj, C extends ComponentName = ComponentName, S extends WeakObj = WeakObj> = (
+  state: T,
+  store: S
+) => RouteResult<T, C, S>;
+
+export type RouteResult<
   State extends WeakObj = WeakObj,
   C extends ComponentName = ComponentName,
   Store extends WeakObj = WeakObj
@@ -13,12 +18,12 @@ export type Route<
 };
 
 export type Path = keyof RoutesType;
-type Nested<T> = T extends Route<infer A> ? A : never;
+type Nested<T> = T extends RouteResult<infer A> ? A : never;
 
 ////////////////////////////////////////////////
 //// Get component parameters
 ////////////////////////////////////////////////
-type NestedSecondArg<T> = T extends Route<WeakObj, infer R> ? R : never;
+type NestedSecondArg<T> = T extends RouteResult<WeakObj, infer R> ? R : never;
 type ComponentsInRoute = {
   [k in keyof RoutesType]: NestedSecondArg<ReturnType<RoutesType[k]>>;
 };
@@ -64,5 +69,5 @@ export type Params = SingleObjectType<RouteState>;
 export type Param = keyof Params;
 
 export type Routes = {
-  [k in keyof RoutesType]: (o: Parameters<RoutesType[k]>[number]) => Route<RouteStatesObj[k]>;
+  [k in keyof RoutesType]: (o: Parameters<RoutesType[k]>[number]) => RouteResult<RouteStatesObj[k]>;
 };
