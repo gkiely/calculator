@@ -22,7 +22,7 @@ module.exports = {
     project: './tsconfig.json',
   },
   rules: {
-    'no-shadow': 'off',
+    '@typescript-eslint/no-shadow': 'off',
     'linebreak-style': 'off',
     'prettier/prettier': [
       'warn',

@@ -114,9 +114,7 @@ const getStore = (store: Store, input: string): Store | undefined => {
         });
       })
       .finally(() => emitter.emit('store'));
-    return {
-      loading: true,
-    };
+    store.loading = true;
   }
   if (store) return store;
 };

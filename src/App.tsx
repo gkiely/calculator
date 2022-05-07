@@ -12,7 +12,6 @@ export function App() {
   const [routeState, update] = useState<RouteState>({});
   const routeStore = useRef<RouteStore>({});
   const route = getRoute(path, routeState, routeStore.current);
-  const [, render] = useState(0);
 
   // Allows updating state from route
   if (route?.state && !isEqual(route.state, routeState)) {
@@ -20,9 +19,6 @@ export function App() {
   }
 
   useEffect(() => {
-    emitter.on('render', () => {
-      render((s) => s + 1);
-    });
     emitter.on('update', (payload) => {
       update((state) => ({
         ...state,
@@ -42,7 +38,7 @@ export function App() {
   routeStore.current = route.store;
 
   // Debugging
-  // console.log('client:', route.state, routeState, route.store, routeStore.current);
+  console.log('client:', route.state, routeState, route.store, routeStore.current);
   // console.log(route.components);
 
   if (!route) return null;
