@@ -1,4 +1,10 @@
 TODO:
+- Combine state and store
+- Fix unnecessary double render from server
+  - Why aren't we just updating on the server and not triggering a re-render?
+  - Does it keep the server logic cleaner?
+  - I could see this causing an issue on the server if we enter and then have to wait for a second render
+  
 - Move store to be second argument type and remove @ts-ignore from App.tsx
 - Instead of Location<'Button'> for a container it should be Location<'/'>
   - Containers should be written for routes, but no updates to components are needed
@@ -26,6 +32,8 @@ const containers = {
 }
 
 
+
+- Add button press css
 - Fix input styling
 - Replace string math with your own math function
 - Automate component/index.tsx creation

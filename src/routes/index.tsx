@@ -70,6 +70,14 @@ const getState = (state: State): State | undefined => {
     };
   }
 
+  // Prevent starting with an operator (except for - )
+  if (input.length === 1 && isOperator(input) && input !== '-') {
+    return {
+      ...state,
+      input: '',
+    };
+  }
+
   // Prevent 0 followed by another 0
   if (isOperator(secondPrevChar) && prevChar === '0' && !isOperator(nextChar)) {
     return {
