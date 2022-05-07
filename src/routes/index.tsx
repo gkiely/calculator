@@ -5,6 +5,7 @@ import { componentNames } from '../utils';
 import { WeakObj } from '../utils/types';
 import type { Route as RouteResult } from './types';
 export const emitter = new EventEmitter();
+import { nanoid } from 'nanoid';
 
 export * from './types';
 type Route<T extends WeakObj, C extends ComponentName = ComponentName, S extends WeakObj = WeakObj> = (
@@ -14,15 +15,16 @@ type Route<T extends WeakObj, C extends ComponentName = ComponentName, S extends
 
 const idFactory = () => {
   let index = 0;
-  return {
-    id: (prefix = ''): string => {
+  return [
+    (prefix = ''): string => {
       return prefix + ++index;
     },
-    resetId: () => (index = 0),
-  };
+    () => (index = 0),
+  ] as const;
 };
 
-const { id, resetId } = idFactory();
+const [id, resetId] = idFactory();
+const uuid = () => nanoid();
 
 const Button = (label: number | string): ComponentData<'Button'> => ({
   id: id(componentNames.Button),
@@ -96,25 +98,42 @@ const getState = (state: State): State | undefined => {
   if (state) return state;
 };
 
+// Store all requests as a map and keep track of their abort controllers
+type RequestMap = { [key: string]: AbortController };
+const requestMap: RequestMap = {};
+
 const getStore = (store: Store, input: string): Store | undefined => {
-  // Testing fetch and re-render
+  if (store.loading && store.requests && input.slice(-2) === 'AC') {
+    requestMap[store.requests.button]?.abort();
+  }
   if (!store.loading && input === '333') {
-    console.log('fetch');
-    fetch('https://jsonplaceholder.typicode.com/users/1')
+    const id = uuid();
+    const controller = new AbortController();
+    requestMap[id] = controller;
+    setTimeout(() => console.log('fetching'));
+    fetch('https://jsonplaceholder.typicode.com/users/1', controller)
       .then((res) => res.json())
-      // .then(async (data) => {
-      //   await new Promise((resolve) => setTimeout(resolve, 1000));
-      //   return data;
-      // })
       .then((data) => {
-        console.log('success');
-        console.log(data);
+        console.log('success', data);
         emitter.emit('update', {
           buttonText: data.id,
         });
       })
-      .finally(() => emitter.emit('store'));
-    store.loading = true;
+      .catch(() => {
+        console.log('aborted');
+      })
+      .finally(() => {
+        delete requestMap[id];
+        emitter.emit('store');
+      });
+
+    return {
+      loading: true,
+      requests: {
+        button: id,
+        ...store.requests,
+      },
+    };
   }
   if (store) return store;
 };
@@ -123,8 +142,11 @@ type State = {
   input?: string;
   buttonText?: number;
 };
-type Store = {
+type Store = WeakObj & {
   loading?: boolean;
+  requests?: {
+    [k: string]: string;
+  };
 };
 type Components = ComponentNames['Button'] | ComponentNames['Result'];
 
@@ -132,7 +154,7 @@ const index: Route<State, Components, Store> = (routeState: State, routeStore: S
   const input = routeState.input ?? '';
   const result = doMath(input);
   const state = getState(routeState);
-  const store = getStore(routeStore, state?.input ?? input);
+  const store = getStore(routeStore, input);
   resetId();
 
   // Debugging

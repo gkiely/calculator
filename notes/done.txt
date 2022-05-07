@@ -24,6 +24,8 @@ Calculator
 - Simulate doing a fetch and re-render x
 - Simulate doing a fetch and re-render and update a button x
 - pass routeStore to getStore so state is persisted unless cleared x
+- abort fetch requests
+  - fetches will require using a cache, but request id is stored on client
 
 SDUI - Amazing how it works
 - Immediate mode, encourages writing it in a clean, functional way
