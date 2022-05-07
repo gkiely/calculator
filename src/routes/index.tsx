@@ -99,17 +99,16 @@ const getState = (state: State): State | undefined => {
 };
 
 // Store all requests as a map and keep track of their abort controllers
-type RequestMap = { [key: string]: AbortController };
-const requestMap: RequestMap = {};
+const requestMap = new Map<string, AbortController>();
 
 const getStore = (store: Store, input: string): Store | undefined => {
   if (store.loading && store.requests && input.slice(-2) === 'AC') {
-    requestMap[store.requests.button]?.abort();
+    requestMap.get(store.requests.button)?.abort();
   }
   if (!store.loading && input === '333') {
     const id = uuid();
     const controller = new AbortController();
-    requestMap[id] = controller;
+    requestMap.set(id, controller);
     setTimeout(() => console.log('fetching'));
     fetch('https://jsonplaceholder.typicode.com/users/1', controller)
       .then((res) => res.json())
@@ -123,7 +122,7 @@ const getStore = (store: Store, input: string): Store | undefined => {
         console.log('aborted');
       })
       .finally(() => {
-        delete requestMap[id];
+        requestMap.delete(id);
         emitter.emit('store');
       });
 
