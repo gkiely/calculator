@@ -1,4 +1,5 @@
 TODO:
+- location.to
 - Instead of Location<'Button'> for a container it should be Location<'/'>
   - Containers should be written for routes, but no updates to components are needed
 - Clean up types

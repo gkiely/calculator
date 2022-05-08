@@ -33,7 +33,7 @@ const Result = ({ id, input, result }: ResultProps) => {
   const inputting = Boolean(input?.length && !result);
   return (
     <div key={id} className={`${getStyle()}`}>
-      <div className={`${getInputStyle(inputting)}`}>{input ? input : <>&nbsp;</>}</div>
+      <div className={`${getInputStyle(inputting)}`}>{input}</div>
       {result && <div className={`${resultStyle}`}>{result}</div>}
     </div>
   );
