@@ -17,7 +17,7 @@ export default function App() {
   const route = getRoute(path, routeState, routeSession.current);
 
   // Clean up onLeave
-  if (prevPath !== path) {
+  if (prevPath && prevPath !== path) {
     const prevRoute = getRoute(prevPath, {}, {});
     if (prevRoute.onLeave) {
       route.session = routeSession.current = {
