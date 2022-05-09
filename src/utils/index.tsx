@@ -1,5 +1,5 @@
 import { Location } from './types';
-import routes, { Path, RouteResult, RouteState, RouteStates, RouteStore } from '../routes';
+import routes, { Path, RouteResult, RouteState, RouteStates, RouteSession } from '../routes';
 import * as components from '../components';
 import * as styles from '../styles';
 import { ComponentData, ComponentName, ComponentNames } from '../components/types';
@@ -12,11 +12,11 @@ export const componentNames = (Object.keys(components) as Array<ComponentName>).
   {} as ComponentNames
 );
 
-export const getRoute = (path: Path, routeState: RouteState, routeStore: RouteStore): RouteResult<RouteStates> => {
+export const getRoute = (path: Path, routeState: RouteState, routeSession: RouteSession): RouteResult<RouteStates> => {
   if (!routes[path]) {
     console.warn(`Route does not exist: ${path}`);
   }
-  return routes[path](routeState, routeStore);
+  return routes[path](routeState, routeSession);
 };
 
 export const getComponent = (data: ComponentData, location: Location): JSX.Element | null => {
@@ -45,4 +45,13 @@ export const createSection = (data: ComponentData | ComponentData[], location: L
     );
   }
   return getComponent(data, location);
+};
+
+export const idFactory = (index = 0) => {
+  return [
+    (prefix = ''): string => {
+      return prefix + ++index;
+    },
+    () => (index = 0),
+  ] as const;
 };

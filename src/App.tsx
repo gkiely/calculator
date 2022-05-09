@@ -1,17 +1,34 @@
-import { BrowserRouter as Router } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
-import isEqual from 'lodash.isequal';
 
-import { emitter, Path, RouteState, RouteStore } from './routes';
+import { emitter, Path, RouteState, RouteSession } from './routes';
 import { createSection, getRoute } from './utils';
 import './styles.css';
 import * as styles from './styles';
+import { isEqual } from 'lodash';
 
-export function App() {
-  const [path, to] = useState<Path>('/');
+export default function App() {
+  const location = useLocation();
+  const path = location.pathname as Path;
+  const to = useNavigate();
   const [routeState, update] = useState<RouteState>({});
-  const routeStore = useRef<RouteStore>({});
-  const route = getRoute(path, routeState, routeStore.current);
+  const routeSession = useRef<RouteSession>({ prevPath: path });
+  const prevPath = routeSession.current.prevPath as Path;
+  const route = getRoute(path, routeState, routeSession.current);
+
+  // Clean up onLeave
+  if (prevPath !== path) {
+    const prevRoute = getRoute(prevPath, {}, {});
+    if (prevRoute.onLeave) {
+      route.session = routeSession.current = {
+        prevPath: routeSession.current.prevPath,
+        ...prevRoute.onLeave.session,
+      };
+      if (prevRoute.onLeave.state) {
+        route.state = routeSession.current.state = prevRoute.onLeave.state;
+      }
+    }
+  }
 
   // Allows updating state from route
   if (route?.state && !isEqual(route.state, routeState)) {
@@ -25,10 +42,10 @@ export function App() {
         ...payload,
       }));
     });
-    emitter.on('store', (payload: RouteStore) => {
-      routeStore.current = payload;
+    emitter.on('session', (payload: RouteSession = {}) => {
+      routeSession.current = payload;
     });
-    emitter.on('to', (path: Path, payload) => {
+    emitter.on('to', (path: Path, payload: RouteState) => {
       console.log('to', path);
       to(path);
       update(typeof payload === 'undefined' ? (prev) => prev : payload);
@@ -36,16 +53,17 @@ export function App() {
     return () => {
       emitter.removeAllListeners();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  routeStore.current = {
-    ...route.store,
+  // Debugging
+  // console.log(route.components);
+  console.log('client:', route.state, routeState, route.session, routeSession.current);
+
+  routeSession.current = {
+    ...route.session,
     prevPath: path,
   };
-
-  // Debugging
-  console.log('client:', route.state, routeState, route.store, routeStore.current);
-  // console.log(route.components);
 
   if (!route) return null;
   return (
@@ -65,13 +83,5 @@ export function App() {
         })
       )}
     </div>
-  );
-}
-
-export default function AppContainer() {
-  return (
-    <Router>
-      <App />
-    </Router>
   );
 }

@@ -26,6 +26,11 @@ Calculator
 - pass routeStore to getStore so state is persisted unless cleared x
 - abort fetch requests
   - fetches will require using a cache, but request id is stored on client
+- Rename store -> session
+- location.to and routing
+- Test navigating to a different route
+- Clicking navigate on first load fires 2 renders because input is not set yet
+- Add onLeave cleanup
 
 SDUI - Amazing how it works
 - Immediate mode, encourages writing it in a clean, functional way

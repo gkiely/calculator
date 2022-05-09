@@ -1,12 +1,11 @@
 TODO:
-- location.to
 - Instead of Location<'Button'> for a container it should be Location<'/'>
   - Containers should be written for routes, but no updates to components are needed
 - Clean up types
 - All params are currently required to be optional
   - See if it's because return type is using union
 
-- Test navigating to a different route
+Then
 - Try building a navigational app ala. smart-tv
 // Write different containers for the same component that can be used by the server
 const containers = {
@@ -26,7 +25,7 @@ const containers = {
 }
 
 
-
+- Fix result styling
 - Add button press css
 - Fix input styling
 - Replace string math with your own math function

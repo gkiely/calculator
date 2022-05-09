@@ -1,7 +1,7 @@
 import { ComponentName } from '../components/types';
 import { Path, Param, Params, ComponentParams } from '../routes';
 
-export type WeakStore = WeakObj & {
+export type WeakSession = WeakObj & {
   prevPath?: string;
 };
 export type WeakObj = Record<string, unknown>;

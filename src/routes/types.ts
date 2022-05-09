@@ -1,19 +1,23 @@
 import type { RoutesType } from './index';
 import type { ComponentData, ComponentName, ComponentNames } from '../components/types';
-import type { WeakObj } from '../utils/types';
+import type { WeakObj, WeakSession } from '../utils/types';
 
 export type Route<T extends WeakObj, C extends ComponentName = ComponentName, S extends WeakObj = WeakObj> = (
   state: T,
-  store: S
+  session: S
 ) => RouteResult<T, C, S>;
 
 export type RouteResult<
   State extends WeakObj = WeakObj,
   C extends ComponentName = ComponentName,
-  Store extends WeakObj = WeakObj
+  Session extends WeakSession = WeakSession
 > = {
   state?: State;
-  store?: Store;
+  session?: Session;
+  onLeave?: {
+    state?: Partial<State>;
+    session?: Partial<Session>;
+  };
   components: Array<ComponentData<C> | ComponentData<C>[]>;
 };
 
@@ -60,8 +64,8 @@ export type RouteStates = GetRouteStates<keyof RoutesType>;
 
 type GetRouteState<P> = P extends Path ? Parameters<RoutesType[P]>[0] : never;
 export type RouteState = GetRouteState<keyof RoutesType>;
-type GetRouteStore<P> = P extends Path ? Parameters<RoutesType[P]>[1] : never;
-export type RouteStore = GetRouteStore<keyof RoutesType>;
+type GetRouteSession<P> = P extends Path ? Parameters<RoutesType[P]>[1] : never;
+export type RouteSession = GetRouteSession<keyof RoutesType>;
 
 type UnionToIntersection<U> = (U extends unknown ? (k: U) => void : never) extends (k: infer I) => void ? I : never;
 type SingleObjectType<U> = UnionToIntersection<U> extends infer O ? { [K in keyof O]: O[K] } : never;

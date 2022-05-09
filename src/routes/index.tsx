@@ -1,8 +1,8 @@
 import stringMath from 'string-math';
 import EventEmitter from 'events';
 import { ComponentData, ComponentNames } from '../components/types';
-import { componentNames } from '../utils';
-import { WeakObj, WeakStore } from '../utils/types';
+import { componentNames, idFactory } from '../utils';
+import { WeakSession } from '../utils/types';
 import type { Route } from './types';
 export const emitter = new EventEmitter();
 import { nanoid } from 'nanoid';
@@ -10,25 +10,17 @@ import secondRoute from './second';
 
 export * from './types';
 
-const idFactory = () => {
-  let index = 0;
-  return [
-    (prefix = ''): string => {
-      return prefix + ++index;
-    },
-    () => (index = 0),
-  ] as const;
-};
-
 const [id, resetId] = idFactory();
 const uuid = () => nanoid();
 
-const Button = (label: number | string): ComponentData<'Button'> => ({
+const isOperator = (char: string) => ['+', '-', 'x', '÷'].includes(char);
+
+export const createButton = (label: number | string): ComponentData<'Button'> => ({
   id: id(componentNames.Button),
   component: componentNames.Button,
   props: {
     text: `${label}`,
-    ...(typeof label === 'string' && { operation: true }),
+    ...(typeof label === 'string' && isOperator(label) && { operation: true }),
     ...(label === 0 && { wide: true }),
   },
 });
@@ -42,8 +34,6 @@ const doMath = (input: string): string => {
     return '';
   }
 };
-
-const isOperator = (char: string) => ['+', '-', 'x', '÷'].includes(char);
 
 const getState = (state: State): State | undefined => {
   const input = state.input ?? '';
@@ -78,6 +68,14 @@ const getState = (state: State): State | undefined => {
   }
 
   // Prevent 0 followed by another 0
+  if (prevChar === '0' && input.length === 2 && !isOperator(nextChar)) {
+    return {
+      ...state,
+      input: '0',
+    };
+  }
+
+  // Prevent operator followed by 00
   if (isOperator(secondPrevChar) && prevChar === '0' && !isOperator(nextChar)) {
     return {
       ...state,
@@ -98,11 +96,14 @@ const getState = (state: State): State | undefined => {
 // Store all requests as a map and keep track of their abort controllers
 const requestMap = new Map<string, AbortController>();
 
-const getStore = (store: Store, input: string): Store | undefined => {
-  if (store.loading && store.requests && input.slice(-2) === 'AC') {
-    requestMap.get(store.requests.button)?.abort();
+const getSession = (session: Session, input: string): Session | undefined => {
+  if (session.loading && session.requests && input.slice(-2) === 'AC') {
+    requestMap.get(session.requests.button)?.abort();
   }
-  if (!store.loading && input === '333') {
+  if (input.slice(-2) === 'AC') {
+    return;
+  }
+  if (!session.loading && input === '333') {
     const id = uuid();
     const controller = new AbortController();
     requestMap.set(id, controller);
@@ -120,28 +121,28 @@ const getStore = (store: Store, input: string): Store | undefined => {
       })
       .finally(() => {
         requestMap.delete(id);
-        emitter.emit('store');
+        emitter.emit('session');
       });
 
     return {
       loading: true,
       requests: {
         button: id,
-        ...store.requests,
+        ...session.requests,
       },
     };
   }
-  if (input === '444' && store.prevPath === '/') {
+  if (input === '444' && session.prevPath === '/') {
     emitter.emit('to', '/second');
   }
-  if (store) return store;
+  return session;
 };
 
 type State = {
   input?: string;
   buttonText?: number;
 };
-type Store = WeakStore & {
+type Session = WeakSession & {
   loading?: boolean;
   requests?: {
     [k: string]: string;
@@ -149,20 +150,17 @@ type Store = WeakStore & {
 };
 type Components = ComponentNames['Button'] | ComponentNames['Result'];
 
-const index: Route<State, Components, Store> = (routeState: State, routeStore: Store = {}) => {
+const index: Route<State, Components, Session> = (routeState: State, routeSession: Session = {}) => {
   const input = routeState.input ?? '';
   const result = doMath(input);
   const state = getState(routeState);
-  const store = getStore(routeStore, input);
+  const session = getSession(routeSession, input);
   resetId();
-
-  // Debugging
-  // console.log('server', routeState, state);
 
   const buttonText = routeState.buttonText ?? 3;
 
   return {
-    store,
+    session,
     state,
     components: [
       {
@@ -190,49 +188,28 @@ const index: Route<State, Components, Store> = (routeState: State, routeStore: S
           },
         },
       ],
-      {
-        id: id(componentNames.Button),
-        component: componentNames.Button,
-        props: {
-          text: 'Navigate to second route',
-          to: '/second',
-          wide: true,
+      [7, 8, 9, 'x'].map((o) => createButton(o)),
+      [4, 5, 6, '÷'].map((o) => createButton(o)),
+      [1, 2, buttonText, '+'].map((o) => createButton(o)),
+      [0, '-'].map((o) => createButton(o)),
+      [
+        {
+          id: id(componentNames.Button),
+          component: componentNames.Button,
+          props: {
+            text: 'Navigate to second route',
+            to: '/second',
+            wide: true,
+          },
         },
-      },
-      [7, 8, 9, 'x'].map((o) => Button(o)),
-      [4, 5, 6, '÷'].map((o) => Button(o)),
-      [1, 2, buttonText, '+'].map((o) => Button(o)),
-      [0, '-'].map((o) => Button(o)),
+      ],
     ],
   };
 };
 
-// const test: Route<{ so?: string }, typeof componentNames.Result> = ({ so }) => {
-//   return {
-//     components: [
-//       {
-//         id: '2134',
-//         component: componentNames.Result,
-//         props: {
-//           result: 'so',
-//           input: '',
-//         },
-//         // component: componentNames.Button,
-//         // props: {
-//         //   text: 'hi',
-//         // },
-//       },
-//     ],
-//     state: {
-//       so,
-//     },
-//   };
-// };
-
 const routes = {
   '/': index,
   '/second': secondRoute,
-  // test,
 };
 
 export type RoutesType = typeof routes;

@@ -1,39 +1,88 @@
+import { createButton } from './index';
 import { ComponentNames } from '../components/types';
-import { componentNames } from '../utils';
-import { WeakObj } from '../utils/types';
+import { componentNames, idFactory } from '../utils';
+import { WeakObj, WeakSession } from '../utils/types';
 import { Route, RouteResult } from './types';
 
-type State = {
+type State = WeakObj & {
   input?: string;
 };
 type Components = ComponentNames['Button'] | ComponentNames['Result'];
-type Store = WeakObj;
+type Session = WeakSession & {
+  readonlyState?: State;
+};
 
-const secondRoute: Route<State, Components, Store> = (routeState): RouteResult<State, Components, Store> => {
-  const input = routeState.input ?? '';
+const [id, resetId] = idFactory();
+
+const getState = (state: State = {}) => {
+  if (state.input) {
+    return {
+      input: state.input,
+    };
+  }
+  return state;
+};
+
+const secondRoute: Route<State, Components, Session> = (
+  routeState,
+  routeSession = {}
+): RouteResult<State, Components, Session> => {
+  const state = getState(routeState);
+  resetId();
+
+  // Store the state in route session and return the same thing to enable read only
+  if (routeSession.prevPath !== '/second') {
+    routeSession.readonlyState = state;
+  }
 
   return {
+    state: routeSession.readonlyState,
+    session: routeSession,
+    onLeave: {
+      session: {},
+    },
     components: [
       {
-        id: '2134',
+        id: id(componentNames.Result),
         component: componentNames.Result,
         props: {
-          result: 'second route',
+          result: `readonly ${state.input ? '- ' + state.input : ''}`,
           input: '',
         },
       },
-      {
-        id: '1234',
-        component: componentNames.Button,
-        props: {
-          text: 'back',
-          to: '/',
+      [
+        {
+          id: id(componentNames.Button),
+          component: componentNames.Button,
+          props: {
+            text: 'AC',
+          },
         },
-      },
+        {
+          id: id(componentNames.Button),
+          component: componentNames.Button,
+          props: {
+            text: '=',
+            wide: true,
+          },
+        },
+      ],
+      ['🚗', '🚀', '😀', 'x'].map((o) => createButton(o)),
+      ['🎃', '👻', '🤠', '÷'].map((o) => createButton(o)),
+      ['🥶', '😀', '🚀', '+'].map((o) => createButton(o)),
+      [0, '-'].map((o) => createButton(o)),
+      [
+        {
+          id: id(componentNames.Button),
+          component: componentNames.Button,
+          props: {
+            text: 'Navigate to first route',
+            to: '/',
+            wide: true,
+          },
+        },
+      ],
     ],
-    state: {
-      input,
-    },
   };
 };
 
