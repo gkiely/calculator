@@ -7,13 +7,14 @@ import type { Route } from './types';
 export const emitter = new EventEmitter();
 import { nanoid } from 'nanoid';
 import secondRoute from './second';
+import { isEqual } from 'lodash';
 
 export * from './types';
 
 const [id, resetId] = idFactory();
 const uuid = () => nanoid();
 
-const isOperator = (char: string) => ['+', '-', 'x', '÷'].includes(char);
+const isOperator = (char: string) => ['+', '-', 'x', '÷', '='].includes(char);
 
 export const createButton = (label: number | string): ComponentData<'Button'> => ({
   id: id(componentNames.Button),
@@ -53,6 +54,14 @@ const getState = (state: State): State | undefined => {
     return {
       ...state,
       input: r + nextChar,
+    };
+  }
+
+  // Replace 0 with number when it's the only character
+  if (input.length === 2 && prevChar === '0' && !isOperator(nextChar)) {
+    return {
+      ...state,
+      input: nextChar,
     };
   }
 
