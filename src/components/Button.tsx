@@ -50,6 +50,7 @@ const ButtonContainer = ({
         if (to) {
           location.to(to);
         } else if (update) {
+          /// TODO: figure out how to do a generic type that accepts either a function or an object
           location.update(() => update);
         } else {
           location.update(({ input = '' }) => ({

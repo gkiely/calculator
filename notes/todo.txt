@@ -1,5 +1,10 @@
 TODO:
+- Exercise
+  - 2 results that can each be activated from a button
+    - I would have an array to store in session (or state)
+    - When toggling, it changes which array to update
 - Fetching and then navigating, should cancel all requests
+
 - No re-render if state is the same (or route returned is undefined?)
 - Instead of Location<'Button'> for a container it should be Location<'/'>
   - Containers should be written for routes, but no updates to components are needed
