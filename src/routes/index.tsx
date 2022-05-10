@@ -35,7 +35,7 @@ const doMath = (input: string): string => {
   }
 };
 
-const getState = (state: State, action: Action): State | undefined => {
+const getState = (state: State): State | undefined => {
   const input = state.input ?? '';
   const slice = input.slice(-2) ?? '';
   const secondPrevChar = input.slice(-3, -2);
@@ -149,14 +149,10 @@ type Session = WeakSession & {
 };
 type Components = ComponentNames['Button'] | ComponentNames['Result'];
 
-const index: Route<State, Components, Session, Action> = (
-  routeState: State,
-  routeSession: Session = {},
-  action: Action = ''
-) => {
+const index: Route<State, Components, Session, Action> = (routeState: State, routeSession: Session = {}) => {
   const input = routeState.input ?? '';
   const result = doMath(input);
-  const state = getState(routeState, action);
+  const state = getState(routeState);
   const session = getSession(routeSession, input);
   resetId();
 

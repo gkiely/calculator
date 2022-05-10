@@ -35,10 +35,15 @@ Calculator
   - action: clear
   - Route should accept state, session, action
   - Test just updating it to type, payload, store, session
+- Add update command X
+- If that doesn't work consider turning getState into a reducer /
+  - I've decided to keep it as state first, it acts like a video game
+  - You can also directly call update from the component
+  - Actions are also available if needed
 
 SDUI - Amazing how it works
-- Immediate mode, encourages writing it in a clean, functional way
+- Immediate mode, encourages writing in a clean, functional way
 - Focuses on the input/output
-- Worrying about state and machines not needed
+- Worrying about state, hooks, redux and machines not needed
 - Cross platform
 

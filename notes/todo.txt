@@ -1,6 +1,5 @@
 TODO:
-- Fetching and then navigating, should cancel all requests 
-- If that doesn't work consider turning getState into a reducer
+- Fetching and then navigating, should cancel all requests
 - No re-render if state is the same (or route returned is undefined?)
 - Instead of Location<'Button'> for a container it should be Location<'/'>
   - Containers should be written for routes, but no updates to components are needed

@@ -46,7 +46,8 @@ const secondRoute: Route<State, Components, Session> = (
           id: id(componentNames.Button),
           component: componentNames.Button,
           props: {
-            text: 'AC',
+            text: 'Hello world',
+            wide: true,
           },
         },
         {
@@ -54,7 +55,6 @@ const secondRoute: Route<State, Components, Session> = (
           component: componentNames.Button,
           props: {
             text: '=',
-            wide: true,
           },
         },
       ],
