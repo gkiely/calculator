@@ -1,4 +1,9 @@
 TODO:
+- Allow for button not with text AC
+  - action: clear
+  - Route should accept type, state, session
+  - Test just updating it to type, payload, store, session
+- No re-render if state is the same (or route returned is undefined?)
 - Instead of Location<'Button'> for a container it should be Location<'/'>
   - Containers should be written for routes, but no updates to components are needed
 - Clean up types
