@@ -1,9 +1,29 @@
 TODO:
+- Fetching and then navigating, should cancel all requests
+  - Implement x
+  - Test
+- Make fetch/requests more intuitive
+- Do we still need onLeave for second.tsx?
+
+
+
+- Experiment (3 functions)
+  - update: Change it to be a reducer
+  - session
+  - view
+    - state, session, 
+https://github.com/charmbracelet/bubbletea
+  - Add typings to prevent functions being added
+
 - Exercise
   - 2 results that can each be activated from a button
     - I would have an array to store in session (or state)
     - When toggling, it changes which array to update
-- Fetching and then navigating, should cancel all requests
+
+- Build a counter
+- Build cr-smart-tv as an example
+- Docs
+- Ship
 
 - No re-render if state is the same (or route returned is undefined?)
 - Instead of Location<'Button'> for a container it should be Location<'/'>

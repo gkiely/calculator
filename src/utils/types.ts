@@ -3,6 +3,10 @@ import { Path, Param, Params, ComponentParams, RouteAction } from '../routes';
 
 export type WeakSession = WeakObj & {
   prevPath?: string;
+  requests?: {
+    [k: string]: string;
+  };
+  abort?: WeakSession['requests'];
 };
 export type WeakObj = Record<string, unknown>;
 

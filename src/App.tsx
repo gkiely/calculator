@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 
-import { emitter, Path, RouteState, RouteSession, RouteAction } from './routes';
+import { emitter, Path, RouteState, RouteSession, RouteAction, abort } from './routes';
 import { createSection, getRoute } from './utils';
 import './styles.css';
 import * as styles from './styles';
@@ -20,7 +20,13 @@ export default function App() {
 
   // Clean up onLeave
   if (prevPath && prevPath !== path) {
-    const prevRoute = getRoute(prevPath, {}, {}, '');
+    const prevRoute = getRoute(
+      prevPath,
+      {},
+      {
+        abort: routeSession.current.requests,
+      }
+    );
     if (prevRoute.onLeave) {
       route.session = routeSession.current = {
         prevPath: routeSession.current.prevPath,

@@ -1,0 +1,32 @@
+Docs
+---
+Components
+- location
+  - update
+  - to
+
+Routes
+- state
+  - Any changes trigger a re-render
+- session
+  - Does not trigger a re-render
+- action (optional)
+
+Route response
+- state
+- session
+- components
+  - props
+    - update: Pass the next update to the component
+- onLeave
+  - session
+  - state
+
+
+EventEmitter
+- update
+- session
+
+
+Other concepts
+- Automatically cancels request on route

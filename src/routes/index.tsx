@@ -93,7 +93,21 @@ const getState = (state: State): State | undefined => {
 // Store all requests as a map and keep track of their abort controllers
 const requestMap = new Map<string, AbortController>();
 
+export const abort = (requests: Record<string, string>) => {
+  Object.keys(requests).forEach((key) => {
+    const controller = requestMap.get(key);
+    if (controller) {
+      controller.abort();
+      requestMap.delete(key);
+    }
+  });
+};
+
 const getSession = (session: Session, input: string): Session | undefined => {
+  if (session.abort) {
+    abort(session.abort);
+    return;
+  }
   if (session.loading && session.requests && input.slice(-2) === 'AC') {
     requestMap.get(session.requests.button)?.abort();
   }
@@ -143,14 +157,12 @@ type State = {
 };
 type Session = WeakSession & {
   loading?: boolean;
-  requests?: {
-    [k: string]: string;
-  };
 };
 type Components = ComponentNames['Button'] | ComponentNames['Result'];
 
 const index: Route<State, Components, Session, Action> = (routeState: State, routeSession: Session = {}) => {
   const input = routeState.input ?? '';
+
   const result = doMath(input);
   const state = getState(routeState);
   const session = getSession(routeSession, input);
