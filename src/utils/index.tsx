@@ -1,5 +1,5 @@
 import { Location } from './types';
-import routes, { Path, RouteResult, RouteState, RouteStates, RouteSession } from '../routes';
+import routes, { Path, RouteResult, RouteState, RouteStates, RouteSession, RouteAction } from '../routes';
 import * as components from '../components';
 import * as styles from '../styles';
 import { ComponentData, ComponentName, ComponentNames } from '../components/types';
@@ -12,11 +12,16 @@ export const componentNames = (Object.keys(components) as Array<ComponentName>).
   {} as ComponentNames
 );
 
-export const getRoute = (path: Path, routeState: RouteState, routeSession: RouteSession): RouteResult<RouteStates> => {
+export const getRoute = (
+  path: Path,
+  routeState: RouteState,
+  routeSession: RouteSession,
+  action: RouteAction = ''
+): RouteResult<RouteStates> => {
   if (!routes[path]) {
     console.warn(`Route does not exist: ${path}`);
   }
-  return routes[path](routeState, routeSession);
+  return routes[path](routeState, routeSession, action as '');
 };
 
 export const getComponent = (data: ComponentData, location: Location): JSX.Element | null => {

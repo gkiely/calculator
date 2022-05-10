@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Location } from '../utils/types';
 import { buttonClass, getButtonColorClass, getContainerWidthClass, containerClass } from '../styles';
-import { Path } from '../routes/types';
+import { Path, RouteAction, RouteState } from '../routes/types';
 
 interface ComponentProps {
   containerClassName?: string;
@@ -22,6 +22,7 @@ export const Button = ({ containerClassName, className, key, onClick, children }
 };
 
 export interface ButtonProps {
+  action?: RouteAction;
   id: string;
   text: string;
   routeParam?: string;
@@ -29,18 +30,31 @@ export interface ButtonProps {
   wide?: boolean;
   location: Location<'Button'>;
   to?: Path;
+  update?: Partial<RouteState>;
 }
 
-const ButtonContainer = ({ id, text, operation = false, wide = false, location, to }: ButtonProps) => {
+const ButtonContainer = ({
+  action = '',
+  update,
+  id,
+  text,
+  operation = false,
+  wide = false,
+  location,
+  to,
+}: ButtonProps) => {
   return (
     <Button
       key={id}
       onClick={() => {
         if (to) {
           location.to(to);
+        } else if (update) {
+          location.update(() => update);
         } else {
           location.update(({ input = '' }) => ({
             input: input + text,
+            action,
           }));
         }
       }}

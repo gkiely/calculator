@@ -14,20 +14,11 @@ type Session = WeakSession & {
 
 const [id, resetId] = idFactory();
 
-const getState = (state: State = {}) => {
-  if (state.input) {
-    return {
-      input: state.input,
-    };
-  }
-  return state;
-};
-
 const secondRoute: Route<State, Components, Session> = (
   routeState,
   routeSession = {}
 ): RouteResult<State, Components, Session> => {
-  const state = getState(routeState);
+  const state = routeState;
   resetId();
 
   // Store the state in route session and return the same thing to enable read only

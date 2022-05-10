@@ -1,11 +1,11 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 
-import { emitter, Path, RouteState, RouteSession } from './routes';
+import { emitter, Path, RouteState, RouteSession, RouteAction } from './routes';
 import { createSection, getRoute } from './utils';
 import './styles.css';
 import * as styles from './styles';
-import { isEqual } from 'lodash';
+import { isEqual, omit } from 'lodash';
 
 export default function App() {
   const location = useLocation();
@@ -14,11 +14,13 @@ export default function App() {
   const [routeState, update] = useState<RouteState>({});
   const routeSession = useRef<RouteSession>({ prevPath: path });
   const prevPath = routeSession.current.prevPath as Path;
-  const route = getRoute(path, routeState, routeSession.current);
+  const actionRef = useRef<RouteAction>('');
+  const route = getRoute(path, routeState, routeSession.current, actionRef.current);
+  actionRef.current = '';
 
   // Clean up onLeave
   if (prevPath && prevPath !== path) {
-    const prevRoute = getRoute(prevPath, {}, {});
+    const prevRoute = getRoute(prevPath, {}, {}, '');
     if (prevRoute.onLeave) {
       route.session = routeSession.current = {
         prevPath: routeSession.current.prevPath,
@@ -48,7 +50,12 @@ export default function App() {
     emitter.on('to', (path: Path, payload: RouteState) => {
       console.log('to', path);
       to(path);
-      update(typeof payload === 'undefined' ? (prev) => prev : payload);
+      if (typeof payload !== 'undefined') {
+        update((state) => ({
+          ...state,
+          ...payload,
+        }));
+      }
     });
     return () => {
       emitter.removeAllListeners();
@@ -76,8 +83,11 @@ export default function App() {
           },
           update: (fn) => {
             const result = fn(routeState);
+            if (result.action) {
+              actionRef.current = result.action;
+            }
             if (result) {
-              emitter.emit('update', result);
+              emitter.emit('update', omit(result, 'action'));
             }
           },
         })

@@ -31,6 +31,10 @@ Calculator
 - Test navigating to a different route
 - Clicking navigate on first load fires 2 renders because input is not set yet
 - Add onLeave cleanup
+- Allow for button not with text AC x
+  - action: clear
+  - Route should accept state, session, action
+  - Test just updating it to type, payload, store, session
 
 SDUI - Amazing how it works
 - Immediate mode, encourages writing it in a clean, functional way

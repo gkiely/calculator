@@ -2,16 +2,13 @@ import type { RoutesType } from './index';
 import type { ComponentData, ComponentName, ComponentNames } from '../components/types';
 import type { WeakObj, WeakSession } from '../utils/types';
 
-export type Route<T extends WeakObj, C extends ComponentName = ComponentName, S extends WeakObj = WeakObj> = (
+export type Route<T extends WeakObj, C = ComponentName, S = WeakObj, A extends RouteAction = ''> = (
   state: T,
-  session: S
+  session: S,
+  action: A
 ) => RouteResult<T, C, S>;
 
-export type RouteResult<
-  State extends WeakObj = WeakObj,
-  C extends ComponentName = ComponentName,
-  Session extends WeakSession = WeakSession
-> = {
+export type RouteResult<State = WeakObj, C = ComponentName, Session = WeakSession> = {
   state?: State;
   session?: Session;
   onLeave?: {
@@ -66,6 +63,7 @@ type GetRouteState<P> = P extends Path ? Parameters<RoutesType[P]>[0] : never;
 export type RouteState = GetRouteState<keyof RoutesType>;
 type GetRouteSession<P> = P extends Path ? Parameters<RoutesType[P]>[1] : never;
 export type RouteSession = GetRouteSession<keyof RoutesType>;
+export type RouteAction = Parameters<RoutesType[keyof RoutesType]>[2];
 
 type UnionToIntersection<U> = (U extends unknown ? (k: U) => void : never) extends (k: infer I) => void ? I : never;
 type SingleObjectType<U> = UnionToIntersection<U> extends infer O ? { [K in keyof O]: O[K] } : never;

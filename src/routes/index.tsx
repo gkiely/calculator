@@ -35,7 +35,7 @@ const doMath = (input: string): string => {
   }
 };
 
-const getState = (state: State): State | undefined => {
+const getState = (state: State, action: Action): State | undefined => {
   const input = state.input ?? '';
   const slice = input.slice(-2) ?? '';
   const secondPrevChar = input.slice(-3, -2);
@@ -43,11 +43,8 @@ const getState = (state: State): State | undefined => {
   const nextChar = slice.charAt(1);
 
   // Reset
-  if (slice === 'AC') {
-    return {
-      buttonText: 3,
-      input: '',
-    };
+  if (input === '') {
+    return state;
   }
 
   // Calculate from a previous result
@@ -103,7 +100,7 @@ const getSession = (session: Session, input: string): Session | undefined => {
   if (input.slice(-2) === 'AC') {
     return;
   }
-  if (!session.loading && input === '333') {
+  if (!session.loading && session.prevPath === '/' && input === '333') {
     const id = uuid();
     const controller = new AbortController();
     requestMap.set(id, controller);
@@ -111,7 +108,7 @@ const getSession = (session: Session, input: string): Session | undefined => {
     fetch('https://jsonplaceholder.typicode.com/users/1', controller)
       .then((res) => res.json())
       .then((data) => {
-        console.log('success', data);
+        console.log('success');
         emitter.emit('update', {
           buttonText: data.id,
         });
@@ -138,6 +135,8 @@ const getSession = (session: Session, input: string): Session | undefined => {
   return session;
 };
 
+type Action = 'clear' | 'equal' | 'operator' | 'number' | '';
+
 type State = {
   input?: string;
   buttonText?: number;
@@ -150,10 +149,14 @@ type Session = WeakSession & {
 };
 type Components = ComponentNames['Button'] | ComponentNames['Result'];
 
-const index: Route<State, Components, Session> = (routeState: State, routeSession: Session = {}) => {
+const index: Route<State, Components, Session, Action> = (
+  routeState: State,
+  routeSession: Session = {},
+  action: Action = ''
+) => {
   const input = routeState.input ?? '';
   const result = doMath(input);
-  const state = getState(routeState);
+  const state = getState(routeState, action);
   const session = getSession(routeSession, input);
   resetId();
 
@@ -177,6 +180,10 @@ const index: Route<State, Components, Session> = (routeState: State, routeSessio
           component: componentNames.Button,
           props: {
             text: 'AC',
+            update: {
+              input: '',
+              buttonText: 3,
+            },
           },
         },
         {

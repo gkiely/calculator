@@ -1,5 +1,5 @@
 import { ComponentName } from '../components/types';
-import { Path, Param, Params, ComponentParams } from '../routes';
+import { Path, Param, Params, ComponentParams, RouteAction } from '../routes';
 
 export type WeakSession = WeakObj & {
   prevPath?: string;
@@ -10,7 +10,7 @@ export type Location<P extends ComponentName = ComponentName> = {
   path: Path;
   param?: Param;
   to: (path: Path, o?: Params) => void;
-  update: (o: (state: ComponentParams[P]) => ComponentParams[P]) => void;
+  update: (o: (state: ComponentParams[P]) => ComponentParams[P] & { action?: RouteAction }) => void;
 };
 
 // TODO: Delete by the end of march 2022
