@@ -9,8 +9,6 @@ type Realm = {
   effects: (state: WeakObj, action: Action) => Promise<AbortController | (() => void) | void>;
 };
 
-type RouteFn = (update?: (o: WeakObj) => any) => Realm;
-
 const createRoute = (route: Realm): Realm => route;
 
 /**
