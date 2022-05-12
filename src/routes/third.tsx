@@ -1,19 +1,19 @@
-import { assign, createMachine } from 'xstate';
+// import { assign, createMachine } from 'xstate';
 import { WeakObj } from '../utils/types';
 
 type Action = { type: string; payload?: any };
 
-type Route = {
+type Realm = {
   state: WeakObj;
-  view: (state: WeakObj) => Record<string, any>[];
-  reducer?: (state: Record<string, any>, action: Action) => WeakObj | void;
+  render: (state: WeakObj) => Record<string, any>[] | Record<string, any>;
+  update?: (state: Record<string, any>, action: Action) => WeakObj | void;
   /// TODO: get type working to only accept state & reducer or machine
   machine?: any;
-  effects?: (state: WeakObj, action: Action) => Promise<AbortController | (() => void) | void>;
+  effects?: (state: WeakObj, action: Action) => Promise<AbortController | (() => void) | void> | void;
   onLeave?: (state: WeakObj) => WeakObj | void;
 };
 
-const createRoute = (route: Route): Route => route;
+const createRealm = (realm: Realm): Realm['render'] => realm.render;
 
 /**
  * Name: realm-ui
@@ -24,16 +24,18 @@ const createRoute = (route: Route): Route => route;
  * - Managing react state and effects can be cumbersome and non-intuitive
  *
  * Solution:
- * An elm inspired approach to React.
+ * An elm inspired approach to React
  *
  * Route
  * state - the state of your application
- * view - a way to turn your state into a UI structure (json)
- * reducer - a way to update your state based on actions
+ * render - a way to turn your state into a UI structure (json)
+ * update - a way to update your state based on actions
  * * effects - a way to update your state based on external events
  * * onLeave - a way to update your state based on leaving a route
  *
  * * effects and onLeave are optional
+ *
+ * interaction -> update -> render
  *
  * It recommended to structure your application into 2 parts:
  * - Components: dumb, re-usable components
@@ -59,9 +61,9 @@ const createRoute = (route: Route): Route => route;
  * FAQ:
  * Why should I use this?
  * - It simplifies your project structure
- *    - There are 2 places a developer can update your application:
- *    - Components: component UI
- *    - Routes: Business logic and view structure
+ *    - It makes it so there are 2 places a developer can update your application:
+ *    - Components
+ *    - Routes: Business logic and component structure
  * - It requires no use of hooks or a  state management library, just a single call to `update` from every component
  * - It encourages building components that are re-usable
  * - The encourages writing business logic that is re-usable
@@ -93,15 +95,17 @@ const button = (text: string, action = { type: 'input', payload: text }) => {
   ];
 };
 
-const view = (state: WeakObj) => {
+const result = (state: WeakObj) => ({
+  id: 'result',
+  component: 'Result',
+  props: {
+    result: state.input,
+  },
+});
+
+const render = (state: WeakObj) => {
   return [
-    {
-      id: 'result',
-      component: 'Result',
-      props: {
-        result: state.input,
-      },
-    },
+    result(state),
     [
       [
         {
@@ -156,7 +160,7 @@ export const isValidInput = (input: string): boolean => {
   const lastChar: string = input[input.length - 2];
   const currentChar: string = input[input.length - 1];
 
-  if(input.length < 2) {
+  if (input.length < 2) {
     return false;
   }
 
@@ -176,12 +180,12 @@ export const isValidInput = (input: string): boolean => {
   return true;
 };
 
-export default createRoute({
+export default createRealm({
   state: {
     input: '',
   },
-  view,
-  reducer(state, { type, payload }) {
+  render,
+  update(state, { type, payload }) {
     // with immer
     if (type === 'clear') {
       state.result = '';

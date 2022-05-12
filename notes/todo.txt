@@ -1,4 +1,24 @@
 TODO:
+- Get new structure working
+  - Test with fetch
+- Get machine example working
+- Done
+  - Show Grace
+  - Show Tony
+  - Send to Tor and Ray for feedback
+  - Build an example for cr-smart-tv-components
+
+- sub realms
+- Naming
+  - Realm
+    - createRealm
+    - createRoute: While this makes sense, it is possible to use it not for a route, you could use it for a sub route
+  - sru
+  - mvu
+
+- For elm folks, support the aliases model, view, update
+  - Write types to ensure there are not duplicates
+
 - Fetching and then navigating, should cancel all requests
   - Implement x
   - Test
