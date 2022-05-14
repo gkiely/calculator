@@ -1,12 +1,39 @@
 TODO:
 - Get new structure working
   - Test with fetch
-- Get machine example working
-- Done
-  - Show Grace
-  - Show Tony
-  - Send to Tor and Ray for feedback
+
+- I need to get this working at the react-router level, so teams can gradually
+adopt it, including our team
+
+- /component route
+- visual debugger
+  - I think this, combined with no react-router, hooks or redux might tip it over the edge
+
+TODO: watch https://www.youtube.com/watch?v=PUv66718DII
+
+- Ship V1 and get feedback
+  - Send to Ray
+  - Send to Grace
+  - Send to Tony
+  - Send to Byran
+  - Send to Tor
+  - Send to Pat
+  - Send to Zee
+  - Send to Alaric
   - Build an example for cr-smart-tv-components
+
+V2
+- Being able to then recreate user state would be pretty awesome
+- Read through the Elm docs
+- Make any adjustments
+- Write documentation
+- Reach out to a few more people and get feedback
+- Launch on HN
+
+V3
+- Allow /component for normal react apps using react-router
+  - Either via the jest tests or a props editor
+- Get machine example working
 
 - sub realms
 - Naming
@@ -24,8 +51,6 @@ TODO:
   - Test
 - Make fetch/requests more intuitive
 - Do we still need onLeave for second.tsx?
-
-
 
 - Experiment (3 functions)
   - update: Change it to be a reducer
