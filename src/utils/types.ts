@@ -1,21 +1,21 @@
-import { ComponentName } from '../components/types';
-import { Path, Param, Params, ComponentParams, RouteAction } from '../routes';
+// import { ComponentName } from '../components/types';
+// import { Path, Param, Params, ComponentParams, RouteAction } from '../routes';
 
-export type WeakSession = WeakObj & {
-  prevPath?: string;
-  requests?: {
-    [k: string]: string;
-  };
-  abort?: WeakSession['requests'];
-};
+// export type WeakSession = WeakObj & {
+//   prevPath?: string;
+//   requests?: {
+//     [k: string]: string;
+//   };
+//   abort?: WeakSession['requests'];
+// };
 export type WeakObj = Record<string, unknown>;
 
-export type Location<P extends ComponentName = ComponentName> = {
-  path: Path;
-  param?: Param;
-  to: (path: Path, o?: Params) => void;
-  update: (o: (state: ComponentParams[P]) => ComponentParams[P] & { action?: RouteAction }) => void;
-};
+// export type Location<P extends ComponentName = ComponentName> = {
+//   path: Path;
+//   param?: Param;
+//   to: (path: Path, o?: Params) => void;
+//   update: (o: (state: ComponentParams[P]) => ComponentParams[P] & { action?: RouteAction }) => void;
+// };
 
 // TODO: Delete by the end of march 2022
 // Delete once the above update is proven working

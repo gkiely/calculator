@@ -1,7 +1,17 @@
 TODO:
 - Get new structure working
+  - Get new simple version working with everything in third.tsx
+  - Get immer working for redux
+  - Get effects working
+  - Make state immutable in render
+  - Custom section classes
+  - Get machine working
+  - Move code from third.tsx to utils
   - Test with fetch
-- Test it with smart-tv app
+  - Blow away and re-do types
+
+- 2 level deep sections (nested sections)
+- Test it with smart-tv app?
 
 
 - Ship V1 and get feedback

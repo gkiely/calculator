@@ -24,15 +24,14 @@ const getInputStyle = (inputting: boolean) => css`
 `;
 
 interface ResultProps {
-  id: string;
   input: string;
   result: string;
 }
 
-const Result = ({ id, input, result }: ResultProps) => {
+const Result = ({ input, result }: ResultProps) => {
   const inputting = Boolean(input?.length && !result);
   return (
-    <div key={id} className={`${getStyle()}`}>
+    <div className={`${getStyle()}`}>
       <div className={`${getInputStyle(inputting)}`}>{input}</div>
       {result && <div className={`${resultStyle}`}>{result}</div>}
     </div>

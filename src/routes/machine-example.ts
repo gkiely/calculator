@@ -1,7 +1,10 @@
 import { assign, createMachine } from 'xstate';
-import { doMath, isValidInput } from './third';
+import { doMath, isValidInput } from '../utils';
 
-export default createMachine({
+export default createMachine<{
+  input: string;
+  result: string;
+}>({
   context: { input: '', result: '' },
   id: 'calculator',
   initial: 'idle',
@@ -33,7 +36,7 @@ export default createMachine({
     },
     calculated: {
       entry: assign({
-        result: (context, event) => doMath(context.input),
+        result: (context) => doMath(context.input),
       }),
       always: 'idle',
     },
