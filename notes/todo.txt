@@ -1,15 +1,8 @@
 TODO:
 - Get new structure working
   - Test with fetch
+- Test it with smart-tv app
 
-- I need to get this working at the react-router level, so teams can gradually
-adopt it, including our team
-
-- /component route
-- visual debugger
-  - I think this, combined with no react-router, hooks or redux might tip it over the edge
-
-TODO: watch https://www.youtube.com/watch?v=PUv66718DII
 
 - Ship V1 and get feedback
   - Send to Ray
@@ -23,6 +16,11 @@ TODO: watch https://www.youtube.com/watch?v=PUv66718DII
   - Build an example for cr-smart-tv-components
 
 V2
+- I need to get this working at the react-router level, so teams can gradually
+adopt it, including our team
+- /component route
+- visual debugger
+  - I think this, combined with no react-router, hooks or redux might tip it over the edge
 - Being able to then recreate user state would be pretty awesome
 - Read through the Elm docs
 - Make any adjustments
