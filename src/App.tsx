@@ -10,9 +10,9 @@ export default function App() {
   const location = useLocation();
   const path: Path = location.pathname as Path;
   const to = useNavigate();
-  const [action, update] = useState<RouteAction | null>(null);
+  const [data, update] = useState<RouteAction | null>(null);
   const stateRef = useRef<RouteState>({} as RouteState);
-  const route = getRoute(path, stateRef.current, action);
+  const route = getRoute(path, stateRef.current, data);
 
   useEffect(() => {
     emitter.on('update', (state: RouteState) => {
@@ -24,20 +24,20 @@ export default function App() {
     };
   }, [update]);
 
+  console.log(route);
+
   return (
     <div className={styles.app}>
       {route &&
         renderRoute(route, {
           path,
-          to: (nextPath, action) => {
+          to: (nextPath, data) => {
             to(nextPath);
-            if (action) {
-              update(action);
+            if (data) {
+              update(data);
             }
           },
-          update: (action) => {
-            update(action);
-          },
+          update,
         })}
     </div>
   );

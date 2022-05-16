@@ -1,4 +1,5 @@
 TODO:
+- Fix syntax highlighting
 - Get new structure working
   - Get new simple version working with everything in third.tsx
   - Get immer working for redux

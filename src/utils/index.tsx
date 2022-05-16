@@ -1,17 +1,17 @@
 // import { Location } from './types';
 // import routes, { Path, RouteResult, RouteState, RouteStates, RouteSession, RouteAction } from '../routes';
-// import * as components from '../components';
+import * as components from '../components';
 // import * as styles from '../styles';
-// import { ComponentData, ComponentName, ComponentNames } from '../components/types';
+import { ComponentName, ComponentNames } from '../components/types';
 import stringMath from 'string-math';
 
-// export const componentNames = (Object.keys(components) as Array<ComponentName>).reduce(
-//   (acc, component) => ({
-//     ...acc,
-//     [component]: component,
-//   }),
-//   {} as ComponentNames
-// );
+export const componentNames = (Object.keys(components) as Array<ComponentName>).reduce(
+  (acc, component) => ({
+    ...acc,
+    [component]: component,
+  }),
+  {} as ComponentNames
+);
 
 // export const getRoute = (
 //   path: Path,
@@ -81,9 +81,7 @@ export const isValidInput = (input: string): boolean => {
   const lastChar: string = input[input.length - 2];
   const currentChar: string = input[input.length - 1];
 
-  if (input.length < 2) {
-    return false;
-  }
+  if (input.length === 1 && isOperator(input)) return false;
 
   // Prevent double operators
   if (isOperator(lastChar) && isOperator(currentChar)) {
