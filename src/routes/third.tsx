@@ -65,7 +65,20 @@ const button = (text: string | number, action = { payload: text }): ComponentDat
   };
 };
 
-// State is immutable in render
+type State = {
+  input: string;
+  result: string;
+  buttonText: number;
+};
+
+// ------ State ------
+const state: State = {
+  input: '',
+  result: '',
+  buttonText: 3,
+};
+
+// ------ Render ------
 const render = (state: State): RouteResult['components'] => {
   reset();
   return [
@@ -119,93 +132,89 @@ const render = (state: State): RouteResult['components'] => {
   ];
 };
 
-type State = {
-  input: string;
-  result: string;
-  buttonText: number;
+// ------ Update ------
+const update: Route<State>['update'] = (state, action) => {
+  const { type, payload } = action;
+  const input = state.input + payload;
+
+  if (type === 'fetch') {
+    return state;
+  }
+
+  // const secondPrevChar: string = input.slice(-4, -3);
+  const prevChar: string = input[input.length - 2];
+  const currentChar: string = input[input.length - 1];
+
+  if (type === 'clear') {
+    return {
+      input: '',
+      result: '',
+      buttonText: 3,
+    };
+  }
+
+  // Calculate from a previous result
+  if (currentChar !== '=' && prevChar === '=') {
+    const result = doMath(input.substring(0, input.length - 1));
+    return {
+      ...state,
+      input: result + currentChar,
+      result,
+    };
+  }
+
+  if (!isValidInput(input)) {
+    return state;
+  }
+
+  if (currentChar === '=') {
+    return {
+      ...state,
+      input,
+      result: doMath(input),
+    };
+  }
+
+  return {
+    ...state,
+    input,
+  };
+};
+
+// ------ Effects ------
+const effects: Route<State>['effects'] = (state, { type, payload }, requests) => {
+  if (!payload || typeof payload !== 'string') return;
+  if (type === 'fetch') {
+    if (requests.button) {
+      requests.button.abort();
+    }
+
+    const controller = new AbortController();
+    requests.button = controller;
+    const getData = async () => {
+      try {
+        const data = await (await fetch(payload, controller)).json();
+        requests.button = null;
+
+        /// TODO this should be called automatically by the library?
+        // after a state change
+        // batch state changes into a single animation frame then call it
+        emitter.emit('update', {
+          buttonText: data.id,
+        });
+      } catch {}
+    };
+    getData();
+    return requests;
+  }
 };
 
 /// TODO: work out way to auto infer state type
 const third = createRoute<State>({
-  state: {
-    input: '',
-    result: '',
-    buttonText: 3,
-  },
+  state,
   render,
-  update: (state, action) => {
-    const { type, payload } = action;
-    const input = state.input + payload;
-
-    if (type === 'fetch') {
-      return state;
-    }
-
-    // const secondPrevChar: string = input.slice(-4, -3);
-    const prevChar: string = input[input.length - 2];
-    const currentChar: string = input[input.length - 1];
-
-    if (type === 'clear') {
-      return {
-        input: '',
-        result: '',
-        buttonText: 3,
-      };
-    }
-
-    // Calculate from a previous result
-    if (currentChar !== '=' && prevChar === '=') {
-      const result = doMath(input.substring(0, input.length - 1));
-      return {
-        ...state,
-        input: result + currentChar,
-        result,
-      };
-    }
-
-    if (!isValidInput(input)) {
-      return state;
-    }
-
-    if (currentChar === '=') {
-      return {
-        ...state,
-        input,
-        result: doMath(input),
-      };
-    }
-
-    return {
-      ...state,
-      input,
-    };
-  },
-  effects(state, { type, payload }, requests) {
-    if (!payload || typeof payload !== 'string') return;
-    if (type === 'fetch') {
-      if (requests.button) {
-        requests.button.abort();
-      }
-
-      const controller = new AbortController();
-      requests.button = controller;
-      const getData = async () => {
-        try {
-          const data = await (await fetch(payload, controller)).json();
-          requests.button = null;
-
-          /// TODO this should be called automatically by the library?
-          // after a state change
-          // batch state changes into a single animation frame then call it
-          emitter.emit('update', {
-            buttonText: data.id,
-          });
-        } catch {}
-      };
-      getData();
-      return requests;
-    }
-  },
+  update,
+  effects,
   onLeave: (state) => {
     console.log('onLeave', state);
   },
