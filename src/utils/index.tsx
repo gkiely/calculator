@@ -4,6 +4,17 @@ import * as components from '../components';
 // import * as styles from '../styles';
 import { ComponentName, ComponentNames } from '../components/types';
 import stringMath from 'string-math';
+import {
+  ComponentData,
+  ComponentProps,
+  Path,
+  Requests,
+  RouteAction,
+  RouteLocation,
+  RouteResult,
+  RouteSection,
+  RouteState,
+} from './types';
 
 export const componentNames = (Object.keys(components) as Array<ComponentName>).reduce(
   (acc, component) => ({
@@ -97,4 +108,81 @@ export const isValidInput = (input: string): boolean => {
     return false;
   }
   return true;
+};
+
+import * as styles from '../styles';
+export const getComponent = (componentData: ComponentData, location: RouteLocation) => {
+  const Component = components[componentData.component] as React.ComponentType<
+    ComponentProps & { location: RouteLocation }
+  >;
+  const { id, props, action } = componentData;
+  return Component ? <Component {...props} action={action} data-test-id={id} key={id} location={location} /> : null;
+};
+
+// Combine component id's to make a unique section id that persists across re-renders
+const getSectionKey = (route: ComponentData | RouteSection): string => {
+  return Array.isArray(route) ? route.map((route) => getSectionKey(route)).join('-') : route.id ? route.id : '';
+};
+
+export const createSection = (route: ComponentData | RouteSection, location: RouteLocation): JSX.Element | null => {
+  if (Array.isArray(route)) {
+    const key = getSectionKey(route);
+    return (
+      <section key={key} className={styles.section}>
+        {route.map((item) => createSection(item, location))}
+      </section>
+    );
+  }
+  return getComponent(route, location);
+};
+
+const requests: Requests = {} as Requests;
+
+import routes from '../routes/third';
+
+export const getRoute = (path: Path, state: RouteState | null, data?: RouteAction | null): RouteResult => {
+  const route = routes[path];
+  if (!route) {
+    return {
+      state: null,
+      components: null,
+    };
+  }
+
+  // Update triggered by server
+  // Refetch view
+  if (data === null) {
+    return {
+      state,
+      components: route.render(state ?? route.state),
+    };
+  }
+
+  const nextState = route.update?.(state ?? route.state, data ?? {});
+
+  route.effects?.(nextState, data ?? {}, requests);
+
+  /// TODO: remove requests when they fulfill?
+  // if (effects) {
+  //   const requests = Array.isArray(effects) ? effects : [effects];
+  //   requests.forEach((obj) =>
+  //     obj.request.finally(() => {
+  //       requestArr = requestArr.filter((o) => o.id !== obj.id);
+  //     })
+  //   );
+  //   requestArr.push(...requests);
+  // }
+
+  // TODO: abort requests and cleanup onLeave
+
+  const result = route.render(nextState);
+
+  return {
+    state: nextState,
+    components: result,
+  };
+};
+
+export const renderRoute = (route: RouteResult, location: RouteLocation) => {
+  return route.components?.map((item) => createSection(item, location));
 };

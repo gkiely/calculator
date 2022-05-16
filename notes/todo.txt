@@ -1,6 +1,9 @@
 TODO:
+- Replace update/effects with machine and see if it's better
 - It's better as a single function?
-  - Keep the structure, no session
+  - Next step: set up third to use a single function
+  - I think adding the additional functions adds cognitive load, you have to remember that it runs update, render, effects
+  with a single function you know what's up
 
 - Add a machine that is a separate file
 - Get new structure working

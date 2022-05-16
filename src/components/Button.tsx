@@ -1,6 +1,6 @@
 import React from 'react';
 import { buttonClass, getButtonColorClass, getContainerWidthClass, containerClass } from '../styles';
-import { Path, RouteAction, RouteLocation } from '../routes/third';
+import { Path, RouteAction, RouteLocation } from '../utils/types';
 // import { Path, RouteAction, RouteState } from '../routes/types';
 
 interface ComponentProps {

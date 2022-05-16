@@ -2,58 +2,11 @@ import EventEmitter from 'events';
 export const emitter = new EventEmitter();
 
 import { componentIdFactory, componentNames, doMath, isValidInput } from '../utils';
-import { WeakObj } from '../utils/types';
-import * as components from '../components';
-import * as styles from '../styles';
-
-export type ComponentName = keyof typeof components;
-export type Path = keyof typeof routes;
-
-/// TODO: fix component props
-// export type ComponentProps = Parameters<typeof components[ComponentName]>[number];
-export type ComponentProps = Record<string, any>;
-export type ComponentData = {
-  id: string;
-  component: ComponentName;
-  props: Omit<ComponentProps, 'id' | 'location'>;
-  action?: RouteAction;
-};
-
-export type RouteSection = ComponentData[];
-
-export type RouteAction = WeakObj;
-
-export type RouteLocation = {
-  path: Path;
-  to: (path: Path, data?: RouteAction) => void;
-  update: (data: RouteAction) => void;
-};
-
-/// TODO: figure out recursive type
-export type RouteResult = {
-  state: RouteState | null;
-  components: (ComponentData | RouteSection)[] | null;
-};
-export type RouteState<Path extends keyof typeof routes = keyof typeof routes> = typeof routes[Path]['state'];
-
-type Requests = Record<string, AbortController | null>;
-
-type Route<State> = {
-  state: State;
-  render: (state: State) => RouteResult['components'];
-  update: (state: State, data: RouteAction) => State;
-  /// TODO: get type working to only accept state & reducer or machine
-  // machine?: any;
-  effects?: (state: State, data: RouteAction, requests: Requests) => void;
-  onLeave?: (state: State) => Partial<State> | void;
-};
-
-function createRoute<S>(route: Route<S>): Route<S> {
-  return route;
-}
+import { ComponentData, Route, RouteResult } from '../utils/types';
 
 const [id, reset] = componentIdFactory();
 
+// ------ Components ------
 const button = (text: string | number, action = { payload: text }): ComponentData => {
   return {
     id: id('button'),
@@ -65,21 +18,73 @@ const button = (text: string | number, action = { payload: text }): ComponentDat
   };
 };
 
+// ------ State ------
 type State = {
   input: string;
   result: string;
   buttonText: number;
 };
 
-// ------ State ------
 const state: State = {
   input: '',
   result: '',
   buttonText: 3,
 };
 
+// ------ Update ------
+const update: Route<State>['update'] = (state, action) => {
+  const { type, payload } = action;
+  const input = state.input + payload;
+
+  const allowedActions = ['clear'];
+
+  if (typeof type === 'string' && !allowedActions.includes(type)) return state;
+
+  // const secondPrevChar: string = input.slice(-4, -3);
+  const prevChar: string = input[input.length - 2];
+  const currentChar: string = input[input.length - 1];
+
+  if (type === 'clear') {
+    return {
+      input: '',
+      result: '',
+      buttonText: 3,
+    };
+  }
+
+  // Calculate from a previous result
+  if (currentChar !== '=' && prevChar === '=') {
+    const result = doMath(input.substring(0, input.length - 1));
+    return {
+      ...state,
+      input: result + currentChar,
+      result,
+    };
+  }
+
+  if (!isValidInput(input)) {
+    return state;
+  }
+
+  if (currentChar === '=') {
+    return {
+      ...state,
+      input,
+      result: doMath(input),
+    };
+  }
+
+  return {
+    ...state,
+    input,
+  };
+};
+
 // ------ Render ------
 const render = (state: State): RouteResult['components'] => {
+  // const state = update(state, action);
+  // const effects = effects(state, action);
+
   reset();
   return [
     {
@@ -132,58 +137,13 @@ const render = (state: State): RouteResult['components'] => {
   ];
 };
 
-// ------ Update ------
-const update: Route<State>['update'] = (state, action) => {
-  const { type, payload } = action;
-  const input = state.input + payload;
-
-  if (type === 'fetch') {
-    return state;
-  }
-
-  // const secondPrevChar: string = input.slice(-4, -3);
-  const prevChar: string = input[input.length - 2];
-  const currentChar: string = input[input.length - 1];
-
-  if (type === 'clear') {
-    return {
-      input: '',
-      result: '',
-      buttonText: 3,
-    };
-  }
-
-  // Calculate from a previous result
-  if (currentChar !== '=' && prevChar === '=') {
-    const result = doMath(input.substring(0, input.length - 1));
-    return {
-      ...state,
-      input: result + currentChar,
-      result,
-    };
-  }
-
-  if (!isValidInput(input)) {
-    return state;
-  }
-
-  if (currentChar === '=') {
-    return {
-      ...state,
-      input,
-      result: doMath(input),
-    };
-  }
-
-  return {
-    ...state,
-    input,
-  };
-};
-
 // ------ Effects ------
 const effects: Route<State>['effects'] = (state, { type, payload }, requests) => {
   if (!payload || typeof payload !== 'string') return;
+  const allowedActions = ['fetch'];
+
+  if (typeof type === 'string' && !allowedActions.includes(type)) return;
+
   if (type === 'fetch') {
     if (requests.button) {
       requests.button.abort();
@@ -209,8 +169,7 @@ const effects: Route<State>['effects'] = (state, { type, payload }, requests) =>
   }
 };
 
-/// TODO: work out way to auto infer state type
-const third = createRoute<State>({
+const third: Route<State> = {
   state,
   render,
   update,
@@ -218,90 +177,10 @@ const third = createRoute<State>({
   onLeave: (state) => {
     console.log('onLeave', state);
   },
-});
+};
 
 const routes = {
   '/': third,
 };
 
 export default routes;
-
-/// TODO: move methods these to utils
-export const getComponent = (componentData: ComponentData, location: RouteLocation) => {
-  const Component = components[componentData.component] as React.ComponentType<
-    ComponentProps & { location: RouteLocation }
-  >;
-  const { id, props, action } = componentData;
-  return Component ? <Component {...props} action={action} data-test-id={id} key={id} location={location} /> : null;
-};
-
-// Combine component id's to make a unique section id that persists across re-renders
-const getSectionKey = (route: ComponentData | RouteSection): string => {
-  return Array.isArray(route) ? route.map((route) => getSectionKey(route)).join('-') : route.id ? route.id : '';
-};
-
-export const createSection = (route: ComponentData | RouteSection, location: RouteLocation): JSX.Element | null => {
-  if (Array.isArray(route)) {
-    const key = getSectionKey(route);
-    return (
-      <section key={key} className={styles.section}>
-        {route.map((item) => createSection(item, location))}
-      </section>
-    );
-  }
-  return getComponent(route, location);
-};
-
-const requests: Requests = {} as Requests;
-
-// getRoute runs:
-// - update x
-// - effects x
-// - render x
-
-export const getRoute = (path: Path, state: RouteState | null, data?: RouteAction | null): RouteResult => {
-  const route = routes[path];
-  if (!route) {
-    return {
-      state: null,
-      components: null,
-    };
-  }
-
-  // Update triggered by server
-  // Refetch view
-  if (data === null) {
-    return {
-      state,
-      components: route.render(state ?? route.state),
-    };
-  }
-
-  const nextState = route.update?.(state ?? route.state, data ?? {});
-
-  route.effects?.(nextState, data ?? {}, requests);
-
-  /// TODO: remove requests when they fulfill?
-  // if (effects) {
-  //   const requests = Array.isArray(effects) ? effects : [effects];
-  //   requests.forEach((obj) =>
-  //     obj.request.finally(() => {
-  //       requestArr = requestArr.filter((o) => o.id !== obj.id);
-  //     })
-  //   );
-  //   requestArr.push(...requests);
-  // }
-
-  // TODO: abort requests and cleanup onLeave
-
-  const result = route.render(nextState);
-
-  return {
-    state: nextState,
-    components: result,
-  };
-};
-
-export const renderRoute = (route: RouteResult, location: RouteLocation) => {
-  return route.components?.map((item) => createSection(item, location));
-};

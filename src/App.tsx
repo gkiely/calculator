@@ -4,7 +4,10 @@ import { useEffect, useRef, useState } from 'react';
 import './styles.css';
 import * as styles from './styles';
 // import { isEqual, omit } from 'lodash';
-import { emitter, getRoute, Path, renderRoute, RouteAction, RouteState } from './routes/third';
+import { Path, RouteAction, RouteState } from './utils/types';
+import { emitter } from './routes/third';
+
+import { getRoute, renderRoute } from './utils';
 
 export default function App() {
   const location = useLocation();
