@@ -11,20 +11,23 @@ export default function App() {
   const path: Path = location.pathname as Path;
   const to = useNavigate();
   const [data, update] = useState<RouteAction | null>(null);
-  const stateRef = useRef<RouteState>({} as RouteState);
+  const stateRef = useRef<RouteState | null>(null);
   const route = getRoute(path, stateRef.current, data);
+
+  stateRef.current = route.state;
 
   useEffect(() => {
     emitter.on('update', (state: RouteState) => {
-      stateRef.current = state;
+      stateRef.current = {
+        ...stateRef.current,
+        ...state,
+      };
       update(null);
     });
     return () => {
       emitter.removeAllListeners();
     };
   }, [update]);
-
-  console.log(route);
 
   return (
     <div className={styles.app}>

@@ -1,7 +1,7 @@
 import EventEmitter from 'events';
 export const emitter = new EventEmitter();
 
-import { componentIdFactory, componentNames, doMath, isValidInput } from '../utils';
+import { componentIdFactory, componentNames, doMath, isOperator, isValidInput } from '../utils';
 import { WeakObj } from '../utils/types';
 import * as components from '../components';
 import * as styles from '../styles';
@@ -30,15 +30,18 @@ export type RouteLocation = {
 };
 
 /// TODO: figure out recursive type
-export type RouteResult = (ComponentData | RouteSection)[];
-export type RouteState<Path extends keyof typeof routes = keyof typeof routes> = typeof routes[Path];
+export type RouteResult = {
+  state: RouteState | null;
+  components: (ComponentData | RouteSection)[] | null;
+};
+export type RouteState<Path extends keyof typeof routes = keyof typeof routes> = typeof routes[Path]['state'];
 
 type Requests = Record<string, AbortController | null>;
 
 type Route<State> = {
   state: State;
-  render: (state: State) => RouteResult;
-  update?: (state: State, data: RouteAction) => Partial<State>;
+  render: (state: State) => RouteResult['components'];
+  update: (state: State, data: RouteAction) => State;
   /// TODO: get type working to only accept state & reducer or machine
   // machine?: any;
   effects?: (state: State, data: RouteAction, requests: Requests) => void;
@@ -63,7 +66,7 @@ const button = (text: string | number, action = { payload: text }): ComponentDat
 };
 
 // State is immutable in render
-const render = (state: State): RouteResult => {
+const render = (state: State): RouteResult['components'] => {
   reset();
   return [
     {
@@ -93,7 +96,6 @@ const render = (state: State): RouteResult => {
           wide: true,
         },
         action: {
-          type: 'calculate',
           payload: '=',
         },
       },
@@ -128,43 +130,55 @@ const third = createRoute<State>({
   state: {
     input: '',
     result: '',
-    buttonText: 3
+    buttonText: 3,
   },
   render,
   update: (state, action) => {
     const { type, payload } = action;
     const input = state.input + payload;
 
+    if (type === 'fetch') {
+      return state;
+    }
+
     // const secondPrevChar: string = input.slice(-4, -3);
     const prevChar: string = input[input.length - 2];
     const currentChar: string = input[input.length - 1];
 
     if (type === 'clear') {
-      return {};
+      return {
+        input: '',
+        result: '',
+        buttonText: 3,
+      };
     }
 
     // Calculate from a previous result
-    if (type === 'calculate' && prevChar === '=') {
+    if (currentChar !== '=' && prevChar === '=') {
       const result = doMath(input.substring(0, input.length - 1));
-      state.input = result + currentChar;
-      state.result = '';
-      return state;
+      return {
+        ...state,
+        input: result + currentChar,
+        result,
+      };
     }
 
     if (!isValidInput(input)) {
       return state;
     }
 
-    if (type === 'calculate') {
-      state.input = input;
-      state.result = doMath(input);
-      return state;
+    if (currentChar === '=') {
+      return {
+        ...state,
+        input,
+        result: doMath(input),
+      };
     }
 
-    if (type && type !== 'input') return state;
-
-    state.input = input;
-    return state;
+    return {
+      ...state,
+      input,
+    };
   },
   effects(state, { type, payload }, requests) {
     if (!payload || typeof payload !== 'string') return;
@@ -178,13 +192,14 @@ const third = createRoute<State>({
       const getData = async () => {
         try {
           const data = await (await fetch(payload, controller)).json();
-          state.buttonText = data.id;
           requests.button = null;
 
           /// TODO this should be called automatically by the library?
           // after a state change
           // batch state changes into a single animation frame then call it
-          emitter.emit('update', state);
+          emitter.emit('update', {
+            buttonText: data.id,
+          });
         } catch {}
       };
       getData();
@@ -234,25 +249,28 @@ const requests: Requests = {} as Requests;
 // - update x
 // - effects x
 // - render x
-export const getRoute = (path: Path, state: RouteState | null, data?: RouteAction | null): RouteResult | null => {
+
+export const getRoute = (path: Path, state: RouteState | null, data?: RouteAction | null): RouteResult => {
   const route = routes[path];
-  if (!route) return null;
+  if (!route) {
+    return {
+      state: null,
+      components: null,
+    };
+  }
 
   // Update triggered by server
   // Refetch view
   if (data === null) {
-    return route.render(route.state);
-  }
-
-  const nextState = route.update?.({ ...route.state }, data ?? {});
-  if (nextState) {
-    route.state = {
-      ...route.state,
-      ...nextState,
+    return {
+      state,
+      components: route.render(state ?? route.state),
     };
   }
 
-  route.effects?.(route.state, data ?? {}, requests);
+  const nextState = route.update?.(state ?? route.state, data ?? {});
+
+  route.effects?.(nextState, data ?? {}, requests);
 
   /// TODO: remove requests when they fulfill?
   // if (effects) {
@@ -267,11 +285,14 @@ export const getRoute = (path: Path, state: RouteState | null, data?: RouteActio
 
   // TODO: abort requests and cleanup onLeave
 
-  const result = route.render(route.state);
+  const result = route.render(nextState);
 
-  return result;
+  return {
+    state: nextState,
+    components: result,
+  };
 };
 
 export const renderRoute = (route: RouteResult, location: RouteLocation) => {
-  return route.map((item) => createSection(item, location));
+  return route.components?.map((item) => createSection(item, location));
 };
