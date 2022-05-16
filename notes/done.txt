@@ -40,6 +40,7 @@ Calculator
   - I've decided to keep it as state first, it acts like a video game
   - You can also directly call update from the component
   - Actions are also available if needed
+- Fix syntax highlighting x
 
 SDUI - Amazing how it works
 - Immediate mode, encourages writing in a clean, functional way

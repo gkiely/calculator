@@ -1,7 +1,7 @@
 import EventEmitter from 'events';
 export const emitter = new EventEmitter();
 
-import { componentIdFactory, componentNames, doMath, isOperator, isValidInput } from '../utils';
+import { componentIdFactory, componentNames, doMath, isValidInput } from '../utils';
 import { WeakObj } from '../utils/types';
 import * as components from '../components';
 import * as styles from '../styles';

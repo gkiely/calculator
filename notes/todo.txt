@@ -1,5 +1,8 @@
 TODO:
-- Fix syntax highlighting
+- It's better as a single function?
+  - Keep the structure, no session
+
+- Add a machine that is a separate file
 - Get new structure working
   - Get new simple version working with everything in third.tsx
   - Get immer working for redux
