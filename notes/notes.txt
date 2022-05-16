@@ -157,3 +157,36 @@
  * I'm gonna have a crack at an elm style react state mgmt library. No react-router, redux or hooks needed. Just a single object with the properties (state, render, update, effects). Outputs json and maps to components.
  *
  */
+
+
+
+
+Manual Abort example
+   // if (!payload || typeof payload !== 'string') return;
+  // const allowedActions = ['fetch'];
+
+  // if (typeof type === 'string' && !allowedActions.includes(type)) return;
+
+  // if (type === 'fetch') {
+  //   if (requests.button) {
+  //     requests.button.abort();
+  //   }
+
+  //   const controller = new AbortController();
+  //   requests.button = controller;
+  //   const getData = async () => {
+  //     try {
+  //       const data = await (await fetch(payload, controller)).json();
+  //       requests.button = null;
+
+  //       /// TODO this should be called automatically by the library?
+  //       // after a state change
+  //       // batch state changes into a single animation frame then call it
+  //       emitter.emit('update', {
+  //         buttonText: data.id,
+  //       });
+  //     } catch {}
+  //   };
+  //   getData();
+  //   return requests;
+  // }

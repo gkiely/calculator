@@ -114,7 +114,7 @@ export type Path = keyof typeof routes;
 // export type ComponentProps = Parameters<typeof components[ComponentName]>[number];
 export type ComponentProps = Record<string, any>;
 export type ComponentData = {
-  id: string;
+  id?: string;
   component: ComponentName;
   props: Omit<ComponentProps, 'id' | 'location'>;
   action?: RouteAction;
@@ -122,7 +122,10 @@ export type ComponentData = {
 
 export type RouteSection = ComponentData[];
 
-export type RouteAction = WeakObj;
+export type RouteAction = {
+  type?: string;
+  payload?: string | number | WeakObj;
+};
 
 export type RouteLocation = {
   path: Path;
@@ -137,14 +140,16 @@ export type RouteResult = {
 };
 export type RouteState<Path extends keyof typeof routes = keyof typeof routes> = typeof routes[Path]['state'];
 
-export type Requests = Record<string, AbortController | null>;
+export type Requests = {
+  get: (url: string) => Promise<WeakObj>;
+}
 
 export type Route<State> = {
   state: State;
   render: (state: State) => RouteResult['components'];
-  update: (state: State, data: RouteAction) => State;
+  reducer: (state: State, action: RouteAction) => State;
   /// TODO: get type working to only accept state & reducer or machine
   // machine?: any;
-  effects?: (state: State, data: RouteAction, requests: Requests) => void;
+  effects?: (state: State, action: RouteAction, requests: Requests) => void;
   onLeave?: (state: State) => Partial<State> | void;
 };

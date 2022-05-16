@@ -111,17 +111,30 @@ export const isValidInput = (input: string): boolean => {
 };
 
 import * as styles from '../styles';
+const [getId, resetIds] = componentIdFactory();
+
 export const getComponent = (componentData: ComponentData, location: RouteLocation) => {
   const Component = components[componentData.component] as React.ComponentType<
     ComponentProps & { location: RouteLocation }
   >;
   const { id, props, action } = componentData;
-  return Component ? <Component {...props} action={action} data-test-id={id} key={id} location={location} /> : null;
+  return Component ? (
+    <Component
+      {...props}
+      action={action}
+      data-test-id={id}
+      key={id ?? getId(componentData.component)}
+      location={location}
+    />
+  ) : null;
 };
 
 // Combine component id's to make a unique section id that persists across re-renders
 const getSectionKey = (route: ComponentData | RouteSection): string => {
-  return Array.isArray(route) ? route.map((route) => getSectionKey(route)).join('-') : route.id ? route.id : '';
+  if (Array.isArray(route)) {
+    return route.map((route) => getSectionKey(route)).join('-');
+  }
+  return route.id ? route.id : getId(route.component);
 };
 
 export const createSection = (route: ComponentData | RouteSection, location: RouteLocation): JSX.Element | null => {
@@ -140,7 +153,7 @@ const requests: Requests = {} as Requests;
 
 import routes from '../routes/third';
 
-export const getRoute = (path: Path, state: RouteState | null, data?: RouteAction | null): RouteResult => {
+export const getRoute = (path: Path, state: RouteState | null, action?: RouteAction | null): RouteResult => {
   const route = routes[path];
   if (!route) {
     return {
@@ -151,16 +164,16 @@ export const getRoute = (path: Path, state: RouteState | null, data?: RouteActio
 
   // Update triggered by server
   // Refetch view
-  if (data === null) {
+  if (action === null) {
     return {
       state,
       components: route.render(state ?? route.state),
     };
   }
 
-  const nextState = route.update?.(state ?? route.state, data ?? {});
+  const nextState = route.reducer?.(state ?? route.state, action ?? {});
 
-  route.effects?.(nextState, data ?? {}, requests);
+  route.effects?.(nextState, action ?? {}, requests);
 
   /// TODO: remove requests when they fulfill?
   // if (effects) {
@@ -174,7 +187,7 @@ export const getRoute = (path: Path, state: RouteState | null, data?: RouteActio
   // }
 
   // TODO: abort requests and cleanup onLeave
-
+  resetIds();
   const result = route.render(nextState);
 
   return {

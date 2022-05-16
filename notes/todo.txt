@@ -1,4 +1,9 @@
 TODO:
+- Fix type errors for effects
+- Test moving to a new route
+- If the same request is made cancel it, if route is changed, cancel it
+- If you want to manually cancel, set the requests function
+
 - Replace update/effects with machine and see if it's better
 - It's better as a single function?
   - Next step: set up third to use a single function
