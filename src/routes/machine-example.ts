@@ -1,7 +1,12 @@
 import { assign, createMachine } from 'xstate';
 import { doMath, isValidInput } from './third';
 
-export default createMachine({
+type Context = {
+  input: string;
+  result: string;
+}
+
+export default createMachine<Context>({
   context: { input: '', result: '' },
   id: 'calculator',
   initial: 'idle',
