@@ -8,15 +8,14 @@ import { Path, RouteAction, RouteState } from './utils/types';
 import { emitter } from './routes/third';
 
 import { getRoute, renderRoute } from './utils';
-import { AnyState } from 'xstate';
 
 export default function App() {
   const location = useLocation();
   const path: Path = location.pathname as Path;
   const to = useNavigate();
-  const [data, update] = useState<RouteAction | null>(null);
-  const stateRef = useRef<RouteState | AnyState | null>(null);
-  const route = getRoute(path, stateRef.current, data);
+  const [action, update] = useState<RouteAction | null>(null);
+  const stateRef = useRef<RouteState | null>(null);
+  const route = getRoute(path, stateRef.current, action);
 
   stateRef.current = route.state;
 
@@ -26,7 +25,10 @@ export default function App() {
         ...stateRef.current,
         ...state,
       };
-      update(null);
+      update({
+        type: 'update',
+        payload: stateRef.current,
+      });
     });
     return () => {
       emitter.removeAllListeners();
@@ -38,10 +40,10 @@ export default function App() {
       {route &&
         renderRoute(route, {
           path,
-          to: (nextPath, data) => {
+          to: (nextPath, action) => {
             to(nextPath);
-            if (data) {
-              update(data);
+            if (action) {
+              update(action);
             }
           },
           update,

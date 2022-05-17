@@ -155,20 +155,9 @@ export const createSection = (route: ComponentData | RouteSection, location: Rou
 
 const requests: Requests = {} as Requests;
 
-function assertType<T>(value: unknown): asserts value is T {
-  if (value === undefined) {
-    throw new Error('value must be defined');
-  }
-}
-
 import routes from '../routes/third';
-import { State } from 'xstate';
 
-export const getRoute = (
-  path: Path,
-  routeState: RouteState | State<RouteState> | null,
-  action?: RouteAction | null
-): RouteResult => {
+export const getRoute = (path: Path, routeState: RouteState | null, action?: RouteAction | null): RouteResult => {
   const route = routes[path];
   if (!route) {
     return {
@@ -181,33 +170,6 @@ export const getRoute = (
 
   // Update triggered by server
   // Refetch view
-  if (route.machine && action === null) {
-    assertType<State<RouteState> | null>(routeState);
-    const state = routeState ? routeState : route.machine.initialState;
-    const components = route.render(state.context);
-    return {
-      state,
-      components,
-    };
-  }
-
-
-  // If state machine is provided use it
-  if (route.machine) {
-    assertType<State<RouteState> | null>(routeState);
-    const state = routeState ? routeState : route.machine.initialState;
-    console.log('transition', action, state.value);
-    const nextState = route.machine.transition(state, action as RouteAction);
-    console.log(nextState.value);
-    const components = route.render(nextState.context);
-    return {
-      state: nextState,
-      components,
-    };
-  }
-
-  // Otherwise use reducer and effects
-  assertType<RouteState | null>(routeState);
   if (action === null) {
     const components = route.render(routeState ?? route.state);
     return {
@@ -215,6 +177,18 @@ export const getRoute = (
       components,
     };
   }
+
+  // If state machine is provided use it
+  if (route.machine) {
+    const nextState = route.machine.send(action);
+    const state = nextState.context;
+    const components = route.render(state);
+    return {
+      state,
+      components,
+    };
+  }
+
   const nextState = route.reducer?.(routeState ?? route.state, action ?? {}) ?? route.state;
   route.effects?.(nextState ?? route.state, action ?? {}, requests);
   const components = route.render(nextState ?? route.state);

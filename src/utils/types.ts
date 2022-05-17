@@ -10,7 +10,7 @@
 // };
 export type WeakObj = Record<string, unknown>;
 
-import { AnyState, AnyStateMachine, createMachine } from 'xstate';
+import { AnyInterpreter, AnyState, AnyStateMachine, createMachine } from 'xstate';
 // export type Location<P extends ComponentName = ComponentName> = {
 //   path: Path;
 //   param?: Param;
@@ -136,7 +136,7 @@ export type RouteLocation = {
 
 /// TODO: figure out recursive type
 export type RouteResult = {
-  state: RouteState | AnyState | null;
+  state: RouteState | null;
   components: (ComponentData | RouteSection)[] | null;
 };
 export type RouteState<Path extends keyof typeof routes = keyof typeof routes> = typeof routes[Path]['state'];
@@ -150,7 +150,13 @@ export type Route<State> = {
   render: (state: State) => RouteResult['components'];
   reducer?: (state: State, action: RouteAction) => State;
   /// TODO: get type working to only accept state & reducer or machine
-  machine?: AnyStateMachine;
+  machine?: AnyInterpreter;
   effects?: (state: State, action: RouteAction, requests: Requests) => void;
   onLeave?: (state: State) => Partial<State> | void;
 };
+
+export function assertType<T>(value: unknown): asserts value is T {
+  if (value === undefined) {
+    throw new Error('value must be defined');
+  }
+}
