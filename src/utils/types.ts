@@ -10,6 +10,7 @@
 // };
 export type WeakObj = Record<string, unknown>;
 
+import { AnyState, AnyStateMachine, createMachine } from 'xstate';
 // export type Location<P extends ComponentName = ComponentName> = {
 //   path: Path;
 //   param?: Param;
@@ -135,7 +136,7 @@ export type RouteLocation = {
 
 /// TODO: figure out recursive type
 export type RouteResult = {
-  state: RouteState | null;
+  state: RouteState | AnyState | null;
   components: (ComponentData | RouteSection)[] | null;
 };
 export type RouteState<Path extends keyof typeof routes = keyof typeof routes> = typeof routes[Path]['state'];
@@ -147,9 +148,9 @@ export type Requests = {
 export type Route<State> = {
   state: State;
   render: (state: State) => RouteResult['components'];
-  reducer: (state: State, action: RouteAction) => State;
+  reducer?: (state: State, action: RouteAction) => State;
   /// TODO: get type working to only accept state & reducer or machine
-  // machine?: any;
+  machine?: AnyStateMachine;
   effects?: (state: State, action: RouteAction, requests: Requests) => void;
   onLeave?: (state: State) => Partial<State> | void;
 };

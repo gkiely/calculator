@@ -8,13 +8,14 @@ import { Path, RouteAction, RouteState } from './utils/types';
 import { emitter } from './routes/third';
 
 import { getRoute, renderRoute } from './utils';
+import { AnyState } from 'xstate';
 
 export default function App() {
   const location = useLocation();
   const path: Path = location.pathname as Path;
   const to = useNavigate();
   const [data, update] = useState<RouteAction | null>(null);
-  const stateRef = useRef<RouteState | null>(null);
+  const stateRef = useRef<RouteState | AnyState | null>(null);
   const route = getRoute(path, stateRef.current, data);
 
   stateRef.current = route.state;

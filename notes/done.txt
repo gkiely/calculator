@@ -48,3 +48,4 @@ SDUI - Amazing how it works
 - Worrying about state, hooks, redux and machines not needed
 - Cross platform
 
+- Get machine working x

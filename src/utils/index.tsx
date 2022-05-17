@@ -95,7 +95,7 @@ export const isValidInput = (input: string): boolean => {
   if (input.length === 1 && isOperator(input)) return false;
 
   // Prevent double operators
-  if (isOperator(lastChar) && isOperator(currentChar)) {
+  if (lastChar !== '=' && isOperator(lastChar) && isOperator(currentChar)) {
     return false;
   }
   // Prevent starting with 00
@@ -103,10 +103,14 @@ export const isValidInput = (input: string): boolean => {
   if ((input.length === 2 || isOperator(secondLastChar)) && lastChar === '0' && currentChar === '0') {
     return false;
   }
-  // Prevent double operators
-  if ((isOperator(currentChar) || lastChar === '=') && isOperator(lastChar)) {
+  // Prevent double ==
+  if (lastChar === '=' && currentChar === '=') {
     return false;
   }
+  // Prevent double operators
+  // if ((isOperator(currentChar) || lastChar === '=') && isOperator(lastChar)) {
+  //   return false;
+  // }
   return true;
 };
 
@@ -151,9 +155,20 @@ export const createSection = (route: ComponentData | RouteSection, location: Rou
 
 const requests: Requests = {} as Requests;
 
-import routes from '../routes/third';
+function assertType<T>(value: unknown): asserts value is T {
+  if (value === undefined) {
+    throw new Error('value must be defined');
+  }
+}
 
-export const getRoute = (path: Path, state: RouteState | null, action?: RouteAction | null): RouteResult => {
+import routes from '../routes/third';
+import { State } from 'xstate';
+
+export const getRoute = (
+  path: Path,
+  routeState: RouteState | State<RouteState> | null,
+  action?: RouteAction | null
+): RouteResult => {
   const route = routes[path];
   if (!route) {
     return {
@@ -162,37 +177,51 @@ export const getRoute = (path: Path, state: RouteState | null, action?: RouteAct
     };
   }
 
+  resetIds();
+
   // Update triggered by server
   // Refetch view
-  if (action === null) {
+  if (route.machine && action === null) {
+    assertType<State<RouteState> | null>(routeState);
+    const state = routeState ? routeState : route.machine.initialState;
+    const components = route.render(state.context);
     return {
       state,
-      components: route.render(state ?? route.state),
+      components,
     };
   }
 
-  const nextState = route.reducer?.(state ?? route.state, action ?? {});
 
-  route.effects?.(nextState, action ?? {}, requests);
+  // If state machine is provided use it
+  if (route.machine) {
+    assertType<State<RouteState> | null>(routeState);
+    const state = routeState ? routeState : route.machine.initialState;
+    console.log('transition', action, state.value);
+    const nextState = route.machine.transition(state, action as RouteAction);
+    console.log(nextState.value);
+    const components = route.render(nextState.context);
+    return {
+      state: nextState,
+      components,
+    };
+  }
 
-  /// TODO: remove requests when they fulfill?
-  // if (effects) {
-  //   const requests = Array.isArray(effects) ? effects : [effects];
-  //   requests.forEach((obj) =>
-  //     obj.request.finally(() => {
-  //       requestArr = requestArr.filter((o) => o.id !== obj.id);
-  //     })
-  //   );
-  //   requestArr.push(...requests);
-  // }
-
-  // TODO: abort requests and cleanup onLeave
-  resetIds();
-  const result = route.render(nextState);
+  // Otherwise use reducer and effects
+  assertType<RouteState | null>(routeState);
+  if (action === null) {
+    const components = route.render(routeState ?? route.state);
+    return {
+      state: routeState,
+      components,
+    };
+  }
+  const nextState = route.reducer?.(routeState ?? route.state, action ?? {}) ?? route.state;
+  route.effects?.(nextState ?? route.state, action ?? {}, requests);
+  const components = route.render(nextState ?? route.state);
 
   return {
     state: nextState,
-    components: result,
+    components,
   };
 };
 

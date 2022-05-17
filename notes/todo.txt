@@ -1,6 +1,24 @@
 TODO:
-- Fix type errors for effects
+- Get invoke working, not sure why it's not
 - Test moving to a new route
+- Add requests.get functionality
+
+
+
+  /// TODO: remove requests when they fulfill?
+  // if (effects) {
+  //   const requests = Array.isArray(effects) ? effects : [effects];
+  //   requests.forEach((obj) =>
+  //     obj.request.finally(() => {
+  //       requestArr = requestArr.filter((o) => o.id !== obj.id);
+  //     })
+  //   );
+  //   requestArr.push(...requests);
+  // }
+
+  // TODO: abort requests and cleanup onLeave
+
+
 - If the same request is made cancel it, if route is changed, cancel it
 - If you want to manually cancel, set the requests function
 
