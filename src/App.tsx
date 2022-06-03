@@ -1,11 +1,49 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 
-import { emitter, Path, RouteState, RouteSession, RouteAction, abort } from './routes';
+import { emitter, Path, RouteState, RouteSession, RouteAction } from './routes';
 import { createSection, getRoute } from './utils';
 import './styles.css';
 import * as styles from './styles';
 import { isEqual, omit } from 'lodash';
+
+// import { fsm, State, Transition } from 'flux-machine';
+
+// console.log(fsm, State, Transition);
+
+// const data = {
+//   speed: 0,
+// };
+
+// const sc = (
+//   <>
+//     <State id="sleeping">
+//       <Transition event="walk" target="walking" />
+//     </State>
+//     <State id="walking">
+//       <Transition event="sleep" target="sleeping" />
+//     </State>
+//   </>
+// );
+
+// const machine = fsm(sc, data);
+
+// console.log(machine.get().states);
+
+// machine
+//   .when({
+//     state: 'sleeping',
+//     event: 'walk',
+//   })
+//   .assign(() => ({
+//     speed: 5,
+//   }));
+
+// const service = machine.start();
+// console.log(service.state.value, service.state.context);
+// service.send('walk');
+
+// console.log(service.state.value, service.state.context);
 
 export default function App() {
   const location = useLocation();
@@ -25,7 +63,7 @@ export default function App() {
       {},
       {
         abort: routeSession.current.requests,
-      }
+      },
     );
     if (prevRoute.onLeave) {
       route.session = routeSession.current = {
@@ -44,8 +82,8 @@ export default function App() {
   }
 
   useEffect(() => {
-    emitter.on('update', (payload) => {
-      update((state) => ({
+    emitter.on('update', payload => {
+      update(state => ({
         ...state,
         ...payload,
       }));
@@ -57,7 +95,7 @@ export default function App() {
       console.log('to', path);
       to(path);
       if (typeof payload !== 'undefined') {
-        update((state) => ({
+        update(state => ({
           ...state,
           ...payload,
         }));
@@ -81,13 +119,13 @@ export default function App() {
   if (!route) return null;
   return (
     <div className={styles.app}>
-      {route.components.map((data) =>
+      {route.components.map(data =>
         createSection(data, {
           path,
           to: (nextPath, payload) => {
             emitter.emit('to', nextPath, payload);
           },
-          update: (fn) => {
+          update: fn => {
             const result = fn(routeState);
             if (result.action) {
               actionRef.current = result.action;
@@ -96,7 +134,7 @@ export default function App() {
               emitter.emit('update', omit(result, 'action'));
             }
           },
-        })
+        }),
       )}
     </div>
   );

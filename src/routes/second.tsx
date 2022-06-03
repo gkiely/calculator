@@ -16,7 +16,7 @@ const [id, resetId] = idFactory();
 
 const secondRoute: Route<State, Components, Session> = (
   routeState,
-  routeSession = {}
+  routeSession = {},
 ): RouteResult<State, Components, Session> => {
   const state = routeState;
   resetId();
@@ -58,10 +58,10 @@ const secondRoute: Route<State, Components, Session> = (
           },
         },
       ],
-      ['🚗', '🚀', '😀', 'x'].map((o) => createButton(o)),
-      ['🎃', '👻', '🤠', '÷'].map((o) => createButton(o)),
-      ['🥶', '😀', '🚀', '+'].map((o) => createButton(o)),
-      [0, '-'].map((o) => createButton(o)),
+      ['🚗', '🚀', '😀', 'x'].map(o => createButton(o)),
+      ['🎃', '👻', '🤠', '÷'].map(o => createButton(o)),
+      ['🥶', '😀', '🚀', '+'].map(o => createButton(o)),
+      [0, '-'].map(o => createButton(o)),
       [
         {
           id: id(componentNames.Button),

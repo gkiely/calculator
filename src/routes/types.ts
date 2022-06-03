@@ -5,7 +5,7 @@ import type { WeakObj, WeakSession } from '../utils/types';
 export type Route<T extends WeakObj, C = ComponentName, S = WeakObj, A extends RouteAction = ''> = (
   state: T,
   session: S,
-  action: A
+  action: A,
 ) => RouteResult<T, C, S>;
 
 export type RouteResult<State = WeakObj, C = ComponentName, Session = WeakSession> = {
@@ -65,7 +65,9 @@ type GetRouteSession<P> = P extends Path ? Parameters<RoutesType[P]>[1] : never;
 export type RouteSession = GetRouteSession<keyof RoutesType>;
 export type RouteAction = Parameters<RoutesType[keyof RoutesType]>[2];
 
-type UnionToIntersection<U> = (U extends unknown ? (k: U) => void : never) extends (k: infer I) => void ? I : never;
+type UnionToIntersection<U> = (U extends unknown ? (k: U) => void : never) extends (k: infer I) => void
+  ? I
+  : never;
 type SingleObjectType<U> = UnionToIntersection<U> extends infer O ? { [K in keyof O]: O[K] } : never;
 export type Params = SingleObjectType<RouteState>;
 export type Param = keyof Params;

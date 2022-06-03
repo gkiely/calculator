@@ -4,7 +4,6 @@ module.exports = {
     'airbnb/hooks',
     'plugin:@typescript-eslint/recommended',
     'plugin:jest/recommended',
-    'plugin:prettier/recommended'
   ],
   plugins: ['import', 'react', '@typescript-eslint', 'jest'],
   env: {
@@ -24,13 +23,6 @@ module.exports = {
   rules: {
     '@typescript-eslint/no-shadow': 'off',
     'linebreak-style': 'off',
-    'prettier/prettier': [
-      'warn',
-      {
-        endOfLine: 'auto',
-        printWidth: 120,
-        singleQuote: true,
-      },
-    ],
+    '@typescript-eslint/indent': 'off',
   },
 };
