@@ -3,16 +3,7 @@ TODO:
   - Test with fetch
 - Test it with smart-tv app
 
-
 - Ship V1 and get feedback
-  - Send to Ray
-  - Send to Grace
-  - Send to Tony
-  - Send to Byran
-  - Send to Tor
-  - Send to Pat
-  - Send to Zee
-  - Send to Alaric
   - Build an example for cr-smart-tv-components
 
 V2
